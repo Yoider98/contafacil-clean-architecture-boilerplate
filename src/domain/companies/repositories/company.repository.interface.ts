@@ -5,4 +5,5 @@ export interface ICompanyRepository {
   update(company: Company): Promise<Company>;
   findById(id: string): Promise<Company>;
   findAll(): Promise<Company[]>;
+  findByIds(ids: string[]): Promise<Company[]>;
 }

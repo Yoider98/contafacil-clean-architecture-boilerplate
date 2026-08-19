@@ -54,6 +54,34 @@ npm start
 
 ---
 
+## 🧪 Pruebas de Auditoría Contable y Siembra E2E (Multiempresa)
+
+El repositorio incluye herramientas interactivas listas para sembrar datos reales de impuestos colombianos y simular el ciclo de vida contable completo para los tres tipos de empresa soportados.
+
+### 1. Siembra de Listas Maestras (Masterlist - Impuestos y RUT Colombia)
+Antes de facturar o realizar operaciones, puedes poblar la base de datos de Supabase con los catálogos estandarizados DIAN (IVA 19%, Retenciones, Responsabilidades Fiscales RUT, y Tipos de Documento):
+
+* **Opción SQL (Recomendado para Supabase SQL Editor):**
+  Ejecuta el script SQL ubicado en [scripts/seed-masterlists.sql](file:///d:/GitHub/Contafacil/saas-backend/scripts/seed-masterlists.sql).
+* **Opción Node.js (Vía API REST):**
+  ```bash
+  node scripts/seed-masterlists.js
+  ```
+
+### 2. Simulación Multiempresa Extremo a Extremo (E2E)
+Para simular el flujo contable completo del ERP:
+```bash
+node scripts/run-e2e-all-scenarios.js
+```
+Este script creará dinámicamente y auditará en caliente:
+* **Escenario A (Comercial):** Apertura de POS, gastos menores, compras al proveedor, ventas POS y facturación DIAN, cartera, cobros, abonos y Nota Crédito de anulación total del stock.
+* **Escenario B (Servicios):** Creación de servicios (sin stock físico) y emisión de facturación DIAN reconociendo la Retención en la Fuente a Favor del 11%.
+* **Escenario C (Manufactura):** Entrada de materia prima (telas), consumo industrial en Kardex para confección y entrada de camisas listas a producto terminado, facturación y costo de ventas.
+
+*Al finalizar, se creará automáticamente el reporte en [docs/e2e-created-ids.md](file:///d:/GitHub/Contafacil/saas-backend/docs/e2e-created-ids.md) con todos los IDs y el token JWT de la prueba.*
+
+---
+
 ## 📑 Documentación de la API
 
 Una vez iniciado el servidor, puedes explorar y probar la API de forma interactiva en:
@@ -67,4 +95,4 @@ La colección de Postman oficial se encuentra en la carpeta `/postman` del repos
 Este proyecto sigue estrictamente los estándares REST. Todas las peticiones `POST` de creación satisfactoria devuelven un status code **201 Created**, asegurando compatibilidad con herramientas de integración continua y testing automatizado.
 
 ---
-Desarrollado con ❤️ para soluciones SaaS escalables.
+Desarrollado con ❤️ para soluciones SaaS colombianas de escala global.

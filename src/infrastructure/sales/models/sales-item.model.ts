@@ -29,6 +29,13 @@ export class SalesItemModel extends Entity {
   productId: string;
 
   @property({
+    type: 'string',
+    required: true,
+    postgresql: {columnName: 'company_id'},
+  })
+  companyId: string;
+
+  @property({
     type: 'number',
     required: true,
   })
@@ -39,6 +46,34 @@ export class SalesItemModel extends Entity {
     required: true,
   })
   price: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+    postgresql: {columnName: 'tax_rate'},
+  })
+  taxRate?: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+    postgresql: {columnName: 'tax_amount'},
+  })
+  taxAmount?: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+    postgresql: {columnName: 'retention_rate'},
+  })
+  retentionRate?: number;
+
+  @property({
+    type: 'number',
+    default: 0,
+    postgresql: {columnName: 'retention_amount'},
+  })
+  retentionAmount?: number;
 
   constructor(data?: Partial<SalesItemModel>)  { super(); /* Inyectado por constructor */ }
 }

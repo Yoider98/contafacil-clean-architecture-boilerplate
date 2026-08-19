@@ -145,7 +145,6 @@ export class CompanyModel extends Entity {
 
   @property({
     type: 'date',
-    default: () => new Date(),
     postgresql: {columnName: 'deleted_at'},
   })
   deletedAt?: Date;

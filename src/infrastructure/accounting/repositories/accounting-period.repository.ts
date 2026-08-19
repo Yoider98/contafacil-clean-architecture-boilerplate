@@ -42,6 +42,16 @@ export class AccountingPeriodRepository implements IAccountingPeriodRepository {
     return model ? AccountingPeriodMapper.toDomain(model) : null;
   }
 
+  async checkPeriodOpen(companyId: string, date: Date): Promise<boolean>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  },
+      toDate: {gte: date.toISOString()},
+    });
+    return count.count > 0;
+  }
+
   async close(period: AccountingPeriod): Promise<AccountingPeriod>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.

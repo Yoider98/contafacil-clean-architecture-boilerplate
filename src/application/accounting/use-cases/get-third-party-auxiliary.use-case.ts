@@ -61,7 +61,7 @@ export class GetThirdPartyAuxiliaryUseCase {
           accountCode: acc?.code ?? 'UNKNOWN',
           accountName: acc?.name ?? 'UNKNOWN',
           amount: Math.abs(e.amount),
-          type: e.amount < 0 ? 'DEBIT' : 'CREDIT',
+          type: e.amount > 0 ? 'DEBIT' : 'CREDIT',
         });
       }
     }

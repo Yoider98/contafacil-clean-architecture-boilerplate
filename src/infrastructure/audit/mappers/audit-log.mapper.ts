@@ -1,3 +1,4 @@
+import {v4 as uuidv4} from 'uuid';
 import {AuditLog} from '../../../domain/audit/entities/audit-log.entity';
 import AuditLogModel from '../models/audit-log.model';
 

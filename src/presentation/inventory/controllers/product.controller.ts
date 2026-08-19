@@ -18,9 +18,10 @@ export class ProductController {
   constructor(
     @repository(ProductRepository)
     private productRepository: ProductRepository,
-
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/products', {
@@ -52,7 +53,6 @@ export class ProductController {
               'name',
               'purchasePrice',
               'salePrice',
-              'companyId',
               'sku',
             ],
             properties: {
@@ -77,6 +77,7 @@ export class ProductController {
     productData: Partial<Product>,
   ): Promise<ApiResponse<Product>> {
     try {
+      productData.companyId = this.currentCompanyId;
       const useCase = new CreateProductUseCase(this.productRepository);
       this.responseObj.status(201);
       const product = await useCase.execute(productData);
@@ -108,11 +109,11 @@ export class ProductController {
     },
   })
   async getByCompany(
-    @param.query.string('companyId') companyId: string,
+    @param.query.string('companyId') companyId?: string,
   ): Promise<ApiResponse<Product[]>> {
     try {
       const useCase = new GetProductsByCompanyUseCase(this.productRepository);
-      const products = await useCase.execute(companyId);
+      const products = await useCase.execute(companyId || this.currentCompanyId);
       return ApiResponse.success(
         products,
         'Productos recuperados exitosamente',

@@ -12,6 +12,7 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {JwtPayload} from 'jsonwebtoken';
+import {v4 as uuidv4} from 'uuid';
 
 import {
   CreateCompanyDto,
@@ -53,6 +54,12 @@ export class CompaniesController {
 
     @inject(RestBindings.Http.REQUEST)
     private requestObj: Request,
+
+    @inject('currentUser', {optional: true})
+    private currentUser?: {id: string; email: string; role: string},
+
+    @inject('currentCompanyId', {optional: true})
+    private currentCompanyId?: string,
   ) {}
 
   // POST /companies — Crear empresa
@@ -150,9 +157,9 @@ export class CompaniesController {
     })
     dto: CreateCompanyDto,
   ): Promise<ApiResponse<Company>> {
-    let userId = dto.userId;
+    let userId = dto.userId ?? this.currentUser?.id;
 
-    // Si no viene userId en el body, intentar sacarlo del token JWT
+    // Si no viene userId en el body ni en el contexto, intentar sacarlo del token JWT manualmente
     if (!userId) {
       const authHeader = this.requestObj.headers['authorization'];
       if (authHeader?.startsWith('Bearer ')) {
@@ -176,6 +183,7 @@ export class CompaniesController {
 
       if (userId) {
         await this.userCompanyRepository.create({
+          id: uuidv4(),
           userId: userId,
           companyId: company.id,
           role: 'OWNER',
@@ -242,8 +250,8 @@ export class CompaniesController {
     }
   }
 
-  // PATCH /companies/{id}/fiscal-profile — Actualizar perfil fiscal
-  @post('/companies/{id}/fiscal-profile')
+  // POST /companies/fiscal-profile — Actualizar perfil fiscal
+  @post('/companies/fiscal-profile')
   @response(200, {
     description: 'Perfil fiscal actualizado exitosamente',
     content: {
@@ -260,7 +268,6 @@ export class CompaniesController {
     },
   })
   async updateFiscalProfile(
-    @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
@@ -291,13 +298,16 @@ export class CompaniesController {
     },
   ): Promise<ApiResponse<Company>> {
     try {
+      if (!this.currentCompanyId) {
+        throw new Error('Falta la cabecera X-Company-Id con la empresa activa');
+      }
       const useCase = new UpdateCompanyFiscalProfileUseCase(
         this.companyRepository,
       );
       // Build profile object; strings will be validated/converted in domain
       const {personType, taxRegime, companyType, ...rest} = body;
       const profile: Partial<UpdateCompanyFiscalProfileDTO> = {
-        companyId: id,
+        companyId: this.currentCompanyId,
         ...rest,
       } as Partial<UpdateCompanyFiscalProfileDTO>;
       if (personType) profile.personType = personType as unknown as PersonType;

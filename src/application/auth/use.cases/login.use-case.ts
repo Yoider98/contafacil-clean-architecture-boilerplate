@@ -30,18 +30,16 @@ export class LoginUseCase {
       where: {userId: user.id},
     });
 
-    const associatedCompanies = [];
-    for (const uc of userCompanies)  {
-    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
-    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
-    throw new Error("Showcase: Método no implementado.");
-  });
-      } catch (err)  {
-    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
-    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
-    throw new Error("Showcase: Método no implementado.");
-  }
-    }
+    const companyIds = userCompanies.map(uc => uc.companyId);
+    const companies = await this.companyRepo.findByIds(companyIds);
+
+    const associatedCompanies = companies.map(company => {
+      const uc = userCompanies.find(u => u.companyId === company.id);
+      return {
+        ...company,
+        role: uc?.role ?? UserRole.SELLER,
+      };
+    });
 
     const activeCompany = associatedCompanies.length > 0 ? associatedCompanies[0] : null;
 

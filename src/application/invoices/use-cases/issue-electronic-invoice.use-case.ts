@@ -6,6 +6,13 @@ import {calculateCufe} from '../../../shared/utils/cufe.calculator';
 import DianStatus from '../../../domain/invoices/enums/dian-status.enum';
 import DocumentStatus from '../../../domain/shared/enums/document-status.enum';
 import {Invoice} from '../../../domain/invoices/entities/invoice.entity';
+import {IInventoryRepository} from '../../../domain/inventory/repositories/inventory.repository.interface';
+import {IProductRepository} from '../../../domain/inventory/repositories/product.repository.interface';
+import {InventoryMovement} from '../../../domain/inventory/entities/inventory-movement.entity';
+import {MovementType} from '../../../domain/inventory/enums/movement-type.enum';
+import ProductType from '../../../domain/inventory/enums/product-type.enum';
+import {IAccountRepository, ILedgerEntryRepository} from '../../../domain/accounting/repositories/accounting.repository.interface';
+import {AccountingOrchestratorService} from '../../accounting/services/accounting-orchestrator.service';
 
 export class IssueElectronicInvoiceUseCase {
   constructor(
@@ -13,9 +20,13 @@ export class IssueElectronicInvoiceUseCase {
     private companyRepository: ICompanyRepository,
     private thirdPartyRepository: IThirdPartyRepository,
     private xmlGeneratorService: XmlGeneratorService = new XmlGeneratorService(),
+    private inventoryRepository?: IInventoryRepository,
+    private productRepository?: IProductRepository,
+    private accountRepository?: IAccountRepository,
+    private ledgerEntryRepository?: ILedgerEntryRepository,
   ) {}
 
-  async execute(invoiceId: string, nitBuyer: string): Promise<Invoice>  {
+  async execute(invoiceId: string, nitBuyer: string, options?: any): Promise<Invoice>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
@@ -70,7 +81,54 @@ export class IssueElectronicInvoiceUseCase {
     );
 
     // Save changes
-    await this.invoiceRepository.update(invoice);
+    await this.invoiceRepository.update(invoice, options);
+
+    // Registrar salidas de inventario asociadas
+    if (this.inventoryRepository && this.productRepository)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }),
+            options,
+          );
+        }
+      }
+    }
+
+    // Registrar asientos contables de la venta
+    if (
+      this.accountRepository &&
+      this.ledgerEntryRepository &&
+      this.productRepository
+    )  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  });
+      }
+
+      const buyers = await this.thirdPartyRepository
+        .find(invoice.companyId, {search: nitBuyer})
+        .catch(() => []);
+      const buyer = buyers.length > 0 ? buyers[0] : null;
+
+      await orchestrator
+        .recordSaleAccounting({
+          companyId: invoice.companyId,
+          saleId: invoice.id,
+          items: itemsForAccounting,
+          paymentMethod: 'CASH',
+          total: invoice.total,
+          taxTotal: invoice.iva,
+          thirdPartyId: buyer?.id,
+        })
+        .catch(err => {
+          console.error(
+            '[Accounting] Error registrando asientos de factura:',
+            err?.message,
+          );
+        });
+    }
 
     return invoice;
   }

@@ -38,7 +38,27 @@ export class AccountRepository implements IAccountRepository {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   }});
-    if (!models || models.length === 0) return null;
-    return AccountingMapper.toAccountDomain(models[0]);
+    if (models && models.length > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
+
+    // Fallback: Buscar la primera cuenta que comience con ese código (ej: '220505' cuando busca '2205')
+    models = await this.lbRepository.find({
+      where: {
+        companyId,
+        code: {like: `${code}%`},
+      },
+      order: ['code ASC'],
+    });
+
+    if (models && models.length > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
+
+    return null;
   }
 }

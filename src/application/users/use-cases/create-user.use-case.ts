@@ -1,11 +1,12 @@
-import {User} from '../../../domain/users/entities/user.entity';
-import {UserRole} from '../../../domain/users/enums/user-role.enum';
-import {IUserRepository} from '../../../domain/users/repositories/user.repository.interface';
-import {ICompanyRepository} from '../../../domain/companies/repositories/company.repository.interface';
+import { User } from '../../../domain/users/entities/user.entity';
+import { UserRole } from '../../../domain/users/enums/user-role.enum';
+import { IUserRepository } from '../../../domain/users/repositories/user.repository.interface';
+import { ICompanyRepository } from '../../../domain/companies/repositories/company.repository.interface';
 import * as bcrypt from 'bcrypt';
+import {v4 as uuidv4} from 'uuid';
 
 export interface CreateUserDto {
-  companyId: string;
+  companyId?: string;
   name: string;
   email: string;
   password: string;
@@ -13,11 +14,15 @@ export interface CreateUserDto {
   permissions?: string[];
 }
 
-export class CreateUserUseCase {
-  constructor(
-    private readonly companyRepository: ICompanyRepository,
-    private readonly userRepository: IUserRepository,
-  )  { /* Inyectado por constructor */ }
+export interface IUserCompanyRepository {
+  create(data: {id: string; userId: string; companyId: string; role: string}): Promise<any>;
+}
+
+export class CreateUserUseCase  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
 
   async execute(dto: CreateUserDto): Promise<User>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
@@ -41,8 +46,12 @@ export class CreateUserUseCase {
       finalPermissions = dto.permissions;
     }
 
-    // Validar que la empresa existe
-    await this.companyRepository.findById(dto.companyId);
+    // Validar que la empresa existe si se suministra
+    if (dto.companyId)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
 
     // Validar email único
     const existing = await this.userRepository.findByEmail(dto.email);
@@ -51,9 +60,9 @@ export class CreateUserUseCase {
     // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    return this.userRepository.create(
+    const user = await this.userRepository.create(
       new User({
-        companyId: dto.companyId,
+        companyId: dto.companyId ?? '',
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
@@ -63,5 +72,15 @@ export class CreateUserUseCase {
         updatedAt: new Date(),
       }),
     );
+
+    // Crear la relación intermedia de multiempresa para autorizar accesos si se pasa empresa
+    if (dto.companyId)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  });
+    }
+
+    return user;
   }
 }

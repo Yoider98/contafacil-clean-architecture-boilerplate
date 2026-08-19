@@ -43,18 +43,22 @@ export class GetGeneralLedgerUseCase {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   } else {
-        if (e.amount < 0)  {
+        if (e.amount > 0)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   } else {
-          ledgerGroups[majorCode].credits += e.amount;
+          ledgerGroups[majorCode].credits += Math.abs(e.amount);
         }
       }
     }
 
     const report = Object.values(ledgerGroups).map(item => {
-      item.finalBalance = item.initialBalance + item.credits - item.debits;
+      const firstDigit = item.majorCode.charAt(0);
+      const isDebitNature = ['1', '5', '6', '7', '8'].includes(firstDigit);
+      item.finalBalance = isDebitNature
+        ? item.initialBalance + item.debits - item.credits
+        : item.initialBalance + item.credits - item.debits;
       return item;
     });
 

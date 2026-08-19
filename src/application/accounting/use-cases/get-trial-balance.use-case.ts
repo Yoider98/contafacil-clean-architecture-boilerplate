@@ -29,18 +29,22 @@ export class GetTrialBalanceUseCase {
     throw new Error("Showcase: Método no implementado.");
   } else {
           // inside range
-          if (e.amount < 0)  {
+          if (e.amount > 0)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   } else {
-            credits += e.amount;
+            credits += Math.abs(e.amount);
           }
         }
       }
 
-      // If no start date was filtered, initial balance remains 0
-      const finalBalance = initialBalance + credits - debits;
+      // Determinar saldo final basado en la naturaleza de la cuenta (PUC colombiano)
+      const firstDigit = acc.code.charAt(0);
+      const isDebitNature = ['1', '5', '6', '7', '8'].includes(firstDigit);
+      const finalBalance = isDebitNature
+        ? initialBalance + debits - credits
+        : initialBalance + credits - debits;
 
       return {
         accountCode: acc.code,

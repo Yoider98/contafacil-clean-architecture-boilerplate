@@ -16,6 +16,9 @@ export class InvoiceResolutionController {
   constructor(
     @inject('repositories.InvoiceResolutionRepository')
     public resolutionRepository: InvoiceResolutionRepository,
+
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/invoice-resolutions')
@@ -30,7 +33,6 @@ export class InvoiceResolutionController {
           schema: {
             type: 'object',
             required: [
-              'companyId',
               'resolutionNumber',
               'prefix',
               'fromNumber',
@@ -55,6 +57,9 @@ export class InvoiceResolutionController {
     })
     data: Omit<InvoiceResolutionModel, 'id'>,
   ) {
+    // Inyectar de forma transparente la empresa activa
+    data.companyId = this.currentCompanyId;
+
     try {
       const useCase = new CreateInvoiceResolutionUseCase(
         this.resolutionRepository,
@@ -79,10 +84,13 @@ export class InvoiceResolutionController {
     content: {'application/json': {schema: {type: 'object'}}},
   })
   async find(
-    @param.query.string('companyId', {required: true}) companyId: string,
+    @param.query.string('companyId') companyId?: string,
   ) {
+    // Usar la empresa del contexto / header
+    const targetCompanyId = companyId || this.currentCompanyId;
+
     try {
-      const list = await this.resolutionRepository.findAll(companyId);
+      const list = await this.resolutionRepository.findAll(targetCompanyId);
       return ApiResponse.success(list, 'Resoluciones obtenidas exitosamente');
     } catch (error) {
       throw new HttpErrors.BadRequest(

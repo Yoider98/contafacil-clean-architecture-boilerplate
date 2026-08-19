@@ -36,4 +36,13 @@ export class CompanyRepository implements ICompanyRepository {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   }
+
+  async findByIds(ids: string[]): Promise<Company[]>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }},
+    });
+    return models.map(m => CompanyMapper.toDomain(m));
+  }
 }

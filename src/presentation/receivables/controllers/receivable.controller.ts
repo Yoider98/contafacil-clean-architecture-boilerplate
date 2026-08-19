@@ -24,6 +24,8 @@ export class ReceivableController {
     private receivableRepository: ReceivableRepository,
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/receivables')
@@ -35,7 +37,7 @@ export class ReceivableController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'thirdPartyId', 'amount'],
+            required: ['thirdPartyId', 'amount'],
             properties: {
               companyId: {type: 'string'},
               thirdPartyId: {type: 'string'},
@@ -48,7 +50,7 @@ export class ReceivableController {
       },
     })
     body: {
-      companyId: string;
+      companyId?: string;
       thirdPartyId: string;
       documentRef?: string;
       amount: number;
@@ -59,7 +61,7 @@ export class ReceivableController {
       this.responseObj.status(201);
       const useCase = new CreateReceivableUseCase(this.receivableRepository);
       const receivable = await useCase.execute({
-        companyId: body.companyId,
+        companyId: this.currentCompanyId,
         thirdPartyId: body.thirdPartyId,
         documentRef: body.documentRef,
         amount: body.amount,

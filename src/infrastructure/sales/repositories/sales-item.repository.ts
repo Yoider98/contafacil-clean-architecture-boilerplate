@@ -13,7 +13,7 @@ export class SalesItemRepository implements ISalesItemRepository {
     this.lbRepository = new DefaultCrudRepository(SalesItemModel, dataSource);
   }
 
-  async create(salesItem: SalesItem): Promise<SalesItem>  {
+  async create(salesItem: SalesItem, options?: any): Promise<SalesItem>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");

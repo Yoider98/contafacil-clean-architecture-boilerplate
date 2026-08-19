@@ -13,7 +13,7 @@ export class PurchaseRepository implements IPurchaseRepository {
     this.lbRepository = new DefaultCrudRepository(PurchaseModel, dataSource);
   }
 
-  async create(purchase: Purchase): Promise<Purchase>  {
+  async create(purchase: Purchase, options?: any): Promise<Purchase>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");

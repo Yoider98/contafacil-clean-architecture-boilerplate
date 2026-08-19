@@ -1,6 +1,7 @@
 import * as xlsx from 'xlsx';
 const PdfPrinter = require('pdfmake');
 import type {TDocumentDefinitions, TableCell} from 'pdfmake/interfaces';
+import {AnyObject} from '@loopback/repository';
 
 export interface ReportColumn {
   header: string;
@@ -16,7 +17,7 @@ export class ReportExporterService {
    * Exporta un arreglo de datos a un buffer de Excel (.xlsx)
    */
   exportToExcel(
-    data: any[],
+    data: AnyObject[],
     columns: ReportColumn[],
     sheetName: string = 'Reporte',
   ): Buffer  {
@@ -47,7 +48,7 @@ export class ReportExporterService {
    * Exporta un arreglo de datos a un buffer de PDF utilizando pdfmake
    */
   exportToPdf(
-    data: any[],
+    data: AnyObject[],
     columns: ReportColumn[],
     title: string = 'Reporte Financiero',
   ): Promise<Buffer>  {
@@ -57,7 +58,8 @@ export class ReportExporterService {
   },
         };
 
-        const printer = new PdfPrinter(fonts);
+        const PdfPrinterClass = typeof PdfPrinter === 'function' ? PdfPrinter : (PdfPrinter.default || PdfPrinter);
+        const printer = new PdfPrinterClass(fonts);
 
         // Crear encabezados
         const tableHeaders: TableCell[] = columns.map(col => ({
@@ -83,7 +85,7 @@ export class ReportExporterService {
         });
 
         // Definir anchos de columna (si se proveen, si no, usa '*')
-        const widths = columns.map(col => col.width || '*');
+        const widths = columns.map(col => col.width ?? '*');
 
         const docDefinition: TDocumentDefinitions =  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura

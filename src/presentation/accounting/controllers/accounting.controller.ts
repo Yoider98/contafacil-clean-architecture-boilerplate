@@ -45,6 +45,8 @@ export class AccountingController {
     private ledgerEntryRepository: LedgerEntryRepository,
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   // -----------------------------------------------------------
@@ -102,7 +104,7 @@ export class AccountingController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'code', 'name'],
+            required: ['code', 'name'],
             properties: {
               companyId: {type: 'string'},
               code: {
@@ -129,6 +131,7 @@ export class AccountingController {
   ): Promise<ApiResponse<Account>> {
     try {
       this.responseObj.status(201);
+      dto.companyId = this.currentCompanyId;
       const result = await new CreateAccountUseCase(
         this.accountRepository,
       ).execute(dto);
@@ -236,7 +239,7 @@ export class AccountingController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'code', 'name'],
+            required: ['code', 'name'],
             properties: {
               companyId: {type: 'string'},
               code: {
@@ -255,6 +258,7 @@ export class AccountingController {
   ): Promise<ApiResponse<FiscalRegime>> {
     try {
       this.responseObj.status(201);
+      dto.companyId = this.currentCompanyId;
       const result = await new CreateFiscalRegimeUseCase(
         this.fiscalRegimeRepository,
       ).execute(dto);
@@ -451,17 +455,15 @@ export class AccountingController {
   @get('/accounting/reports/trial-balance')
   @response(200, {description: 'Obtiene el Balance de Comprobación'})
   async getTrialBalance(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return ApiResponse.error('companyId is required');
       const useCase = new GetTrialBalanceUseCase(
         this.accountRepository,
         this.ledgerEntryRepository,
       );
-      const result = await useCase.execute(companyId, startDate, endDate);
+      const result = await useCase.execute(this.currentCompanyId, startDate, endDate);
       return ApiResponse.success(result, 'Balance de Comprobación recuperado');
     } catch (err: unknown) { this.responseObj.status(422);
       return ApiResponse.error(
@@ -473,17 +475,15 @@ export class AccountingController {
   @get('/accounting/reports/general-ledger')
   @response(200, {description: 'Obtiene el Libro Mayor'})
   async getGeneralLedger(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return ApiResponse.error('companyId is required');
       const useCase = new GetGeneralLedgerUseCase(
         this.accountRepository,
         this.ledgerEntryRepository,
       );
-      const result = await useCase.execute(companyId, startDate, endDate);
+      const result = await useCase.execute(this.currentCompanyId, startDate, endDate);
       return ApiResponse.success(result, 'Libro Mayor recuperado');
     } catch (err: unknown) { this.responseObj.status(422);
       return ApiResponse.error(
@@ -495,20 +495,18 @@ export class AccountingController {
   @get('/accounting/reports/third-party-auxiliary')
   @response(200, {description: 'Obtiene el Auxiliar por Tercero'})
   async getThirdPartyAuxiliary(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('thirdPartyId') thirdPartyId: string,
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return ApiResponse.error('companyId is required');
       if (!thirdPartyId) return ApiResponse.error('thirdPartyId is required');
       const useCase = new GetThirdPartyAuxiliaryUseCase(
         this.accountRepository,
         this.ledgerEntryRepository,
       );
       const result = await useCase.execute(
-        companyId,
+        this.currentCompanyId,
         thirdPartyId,
         startDate,
         endDate,
@@ -524,17 +522,15 @@ export class AccountingController {
   @get('/accounting/reports/trial-balance/export')
   @response(200, {description: 'Exporta el Balance de Comprobación a Excel/PDF'})
   async exportTrialBalance(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('format') format: 'excel' | 'pdf',
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return this.responseObj.status(400).send('companyId is required');
       if (format !== 'excel' && format !== 'pdf') return this.responseObj.status(400).send('format debe ser excel o pdf');
 
       const useCase = new GetTrialBalanceUseCase(this.accountRepository, this.ledgerEntryRepository);
-      const data = await useCase.execute(companyId, startDate, endDate);
+      const data = await useCase.execute(this.currentCompanyId, startDate, endDate);
 
       const columns = [
         {header: 'Código', key: 'accountCode', width: 60, format: 'text'},
@@ -565,17 +561,15 @@ export class AccountingController {
   @get('/accounting/reports/general-ledger/export')
   @response(200, {description: 'Exporta el Libro Mayor a Excel/PDF'})
   async exportGeneralLedger(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('format') format: 'excel' | 'pdf',
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return this.responseObj.status(400).send('companyId is required');
       if (format !== 'excel' && format !== 'pdf') return this.responseObj.status(400).send('format debe ser excel o pdf');
 
       const useCase = new GetGeneralLedgerUseCase(this.accountRepository, this.ledgerEntryRepository);
-      const data = await useCase.execute(companyId, startDate, endDate);
+      const data = await useCase.execute(this.currentCompanyId, startDate, endDate);
 
       const columns = [
         {header: 'Cuenta Mayor', key: 'majorCode', width: 80, format: 'text'},
@@ -605,19 +599,17 @@ export class AccountingController {
   @get('/accounting/reports/third-party-auxiliary/export')
   @response(200, {description: 'Exporta el Auxiliar por Tercero a Excel/PDF'})
   async exportThirdPartyAuxiliary(
-    @param.query.string('companyId') companyId: string,
     @param.query.string('thirdPartyId') thirdPartyId: string,
     @param.query.string('format') format: 'excel' | 'pdf',
     @param.query.string('startDate') startDate?: string,
     @param.query.string('endDate') endDate?: string,
   ) {
     try {
-      if (!companyId) return this.responseObj.status(400).send('companyId is required');
       if (!thirdPartyId) return this.responseObj.status(400).send('thirdPartyId is required');
       if (format !== 'excel' && format !== 'pdf') return this.responseObj.status(400).send('format debe ser excel o pdf');
 
       const useCase = new GetThirdPartyAuxiliaryUseCase(this.accountRepository, this.ledgerEntryRepository);
-      const data = await useCase.execute(companyId, thirdPartyId, startDate, endDate);
+      const data = await useCase.execute(this.currentCompanyId, thirdPartyId, startDate, endDate);
 
       const columns = [
         {header: 'Fecha', key: 'createdAt', width: 80, format: 'text'},

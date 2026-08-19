@@ -22,6 +22,9 @@ import {InventoryRepository} from '../../../infrastructure/inventory/repositorie
 import {ProductRepository} from '../../../infrastructure/inventory/repositories/product.repository';
 import {PurchaseItemRepository} from '../../../infrastructure/purchases/repositories/purchase-item.repository';
 import {PurchaseRepository} from '../../../infrastructure/purchases/repositories/purchase.repository';
+import {AccountingPeriodRepository} from '../../../infrastructure/accounting/repositories/accounting-period.repository';
+import {MasterlistRepository} from '../../../infrastructure/shared/repositories/masterlist.repository';
+import {PostgresDataSource} from '../../../infrastructure/database/datasources/postgres.datasource';
 import {ApiResponse} from '../../../shared/responses/api.response';
 
 const UUID_REGEX =
@@ -34,6 +37,8 @@ function assertUuid(id: string, label = 'id'): void {
     );
   }
 }
+
+import {IsolationLevel} from '@loopback/repository';
 
 export class PurchasesController {
   constructor(
@@ -57,9 +62,24 @@ export class PurchasesController {
 
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+
+    @inject('currentUser')
+    private currentUser: {id: string; email: string; role: string; roleInCompany: string},
+
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
+
+    @inject('datasources.postgres')
+    private dataSource: PostgresDataSource,
+
+    @repository(AccountingPeriodRepository)
+    private accountingPeriodRepository: AccountingPeriodRepository,
+
+    @repository(MasterlistRepository)
+    private masterlistRepository: MasterlistRepository,
   ) {}
 
-  // POST /purchases — Crear compra + stock IN automático
+  // POST /purchases — Crear compra + stock IN automático (Transaccionado & Protegido)
   @post('/purchases', {
     responses: {
       '201': {
@@ -86,7 +106,7 @@ export class PurchasesController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'items'],
+            required: ['items'],
             properties: {
               companyId: {type: 'string'},
               supplier: {type: 'string'},
@@ -111,6 +131,9 @@ export class PurchasesController {
     })
     dto: CreatePurchaseDto,
   ): Promise<ApiResponse<Purchase>> {
+    // Inyectar el ID de empresa validado por el interceptor de cabeceras
+    dto.companyId = this.currentCompanyId;
+
     const useCase = new CreatePurchaseUseCase(
       this.inventoryRepository,
       this.purchaseRepository,
@@ -118,19 +141,30 @@ export class PurchasesController {
       this.productRepository,
       this.accountRepository,
       this.ledgerEntryRepository,
+      this.accountingPeriodRepository,
+      this.masterlistRepository,
     );
+
+    // Iniciar Transacción PostgreSQL P0
+    const tx = await this.dataSource.beginTransaction(
+      IsolationLevel.READ_COMMITTED,
+    );
+
     try {
       this.responseObj.status(201);
-      const purchase = await useCase.execute(dto);
+      const purchase = await useCase.execute(dto, {transaction: tx});
+      await tx.commit();
       return ApiResponse.success(purchase, 'Compra creada exitosamente');
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      await tx.rollback();
+      this.responseObj.status(422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
     }
   }
 
-  // GET /purchases?companyId= — Listar compras de una empresa
+  // GET /purchases — Listar compras de una empresa (Filtradas por Empresa)
   @get('/purchases')
   @response(200, {
     description: 'Lista de compras',
@@ -148,22 +182,25 @@ export class PurchasesController {
     },
   })
   async findAll(
-    @param.query.string('companyId') companyId: string,
+    @param.query.string('companyId') companyId?: string,
   ): Promise<ApiResponse<Purchase[]>> {
     try {
-      if (!companyId) {
-        return ApiResponse.error('companyId is required');
+      // Aislamiento Multiempresa P0: Validar e ignorar query malicioso
+      if (companyId && companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No puedes consultar compras de otra empresa');
       }
-      const purchases = await this.purchaseRepository.findAll(companyId);
+
+      const purchases = await this.purchaseRepository.findAll(this.currentCompanyId);
       return ApiResponse.success(purchases, 'Compras recuperadas exitosamente');
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
     }
   }
 
-  // GET /purchases/{id} — Detalle de una compra
+  // GET /purchases/{id} — Detalle de una compra (Verificación de Empresa)
   @get('/purchases/{id}')
   @response(200, {
     description: 'Detalle de la compra',
@@ -186,15 +223,22 @@ export class PurchasesController {
     try {
       assertUuid(id);
       const purchase = await this.purchaseRepository.findById(id);
+
+      // Aislamiento Multiempresa P0: Validar propiedad del recurso
+      if (purchase.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para acceder a esta compra');
+      }
+
       return ApiResponse.success(purchase, 'Compra recuperada exitosamente');
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
     }
   }
 
-  // GET /purchases/{id}/items — Ítems de una compra
+  // GET /purchases/{id}/items — Ítems de una compra (Verificación de Empresa)
   @get('/purchases/{id}/items')
   @response(200, {
     description: 'Ítems de la compra',
@@ -216,12 +260,20 @@ export class PurchasesController {
   ): Promise<ApiResponse<PurchaseItem[]>> {
     try {
       assertUuid(id);
+      const purchase = await this.purchaseRepository.findById(id);
+
+      // Aislamiento Multiempresa P0: Validar propiedad del recurso
+      if (purchase.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para acceder a los ítems de esta compra');
+      }
+
       const items = await this.purchaseItemRepository.findByPurchaseId(id);
       return ApiResponse.success(
         items,
         'Ítems de la compra recuperados exitosamente',
       );
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );

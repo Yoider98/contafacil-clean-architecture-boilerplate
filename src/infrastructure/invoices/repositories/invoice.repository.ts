@@ -1,5 +1,5 @@
 import {inject} from '@loopback/core';
-import {DefaultCrudRepository} from '@loopback/repository';
+import {DefaultCrudRepository, AnyObject} from '@loopback/repository';
 import {PostgresDataSource} from '../../database/datasources/postgres.datasource';
 import {InvoiceModel} from '../models/invoice.model';
 import {IInvoiceRepository} from '../../../domain/invoices/repositories/invoice.repository';
@@ -16,21 +16,21 @@ export class InvoiceRepository implements IInvoiceRepository {
     this.lbRepository = new DefaultCrudRepository(InvoiceModel, dataSource);
   }
 
-  async create(invoice: Invoice): Promise<Invoice>  {
+  async create(invoice: Invoice, options?: AnyObject): Promise<Invoice>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   }
 
-  async findById(id: string): Promise<Invoice | null>  {
+  async findById(id: string, options?: AnyObject): Promise<Invoice | null>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  }});
+  }}, options);
     return model ? InvoiceMapper.toDomain(model) : null;
   }
 
-  async update(invoice: Invoice): Promise<Invoice>  {
+  async update(invoice: Invoice, options?: AnyObject): Promise<Invoice>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");

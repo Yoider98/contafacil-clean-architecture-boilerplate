@@ -11,7 +11,7 @@ export class SalesRepository implements ISalesRepository {
   constructor(@inject('datasources.postgres') dataSource: PostgresDataSource) {
     this.lbRepository = new DefaultCrudRepository(SalesModel, dataSource);
   }
-  async create(sales: Sales): Promise<Sales>  {
+  async create(sales: Sales, options?: any): Promise<Sales>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
@@ -28,5 +28,12 @@ export class SalesRepository implements ISalesRepository {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
+  }
+  async findAllByCompany(companyId: string): Promise<Sales[]>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }});
+    return models.map(model => SalesMapper.toSalesDomain(model));
   }
 }

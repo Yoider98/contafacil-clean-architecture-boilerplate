@@ -22,6 +22,9 @@ import {InventoryRepository} from '../../../infrastructure/inventory/repositorie
 import {ProductRepository} from '../../../infrastructure/inventory/repositories/product.repository';
 import {SalesItemRepository} from '../../../infrastructure/sales/repositories/sales-item.repository';
 import {SalesRepository} from '../../../infrastructure/sales/repositories/sales.repository';
+import {AccountingPeriodRepository} from '../../../infrastructure/accounting/repositories/accounting-period.repository';
+import {MasterlistRepository} from '../../../infrastructure/shared/repositories/masterlist.repository';
+import {PostgresDataSource} from '../../../infrastructure/database/datasources/postgres.datasource';
 import {ApiResponse} from '../../../shared/responses/api.response';
 
 const UUID_REGEX =
@@ -34,6 +37,8 @@ function assertUuid(id: string, label = 'id'): void {
     );
   }
 }
+
+import {IsolationLevel} from '@loopback/repository';
 
 export class SalesController {
   constructor(
@@ -57,10 +62,25 @@ export class SalesController {
 
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+
+    @inject('currentUser')
+    private currentUser: {id: string; email: string; role: string; roleInCompany: string},
+
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
+
+    @inject('datasources.postgres')
+    private dataSource: PostgresDataSource,
+
+    @repository(AccountingPeriodRepository)
+    private accountingPeriodRepository: AccountingPeriodRepository,
+
+    @repository(MasterlistRepository)
+    private masterlistRepository: MasterlistRepository,
   ) {}
 
   // ------------------------------------------------------------------ //
-  // POST /sales  — Crear una nueva venta
+  // POST /sales  — Crear una nueva venta (Transaccionado & Protegido)
   // ------------------------------------------------------------------ //
   @post('/sales', {
     responses: {
@@ -89,7 +109,7 @@ export class SalesController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'warehouseId', 'paymentMethod', 'items'],
+            required: ['warehouseId', 'paymentMethod', 'items'],
             properties: {
               companyId: {type: 'string', description: 'ID de la empresa'},
               warehouseId: {type: 'string', description: 'ID del almacén'},
@@ -114,6 +134,9 @@ export class SalesController {
     })
     dto: CreateSaleDto,
   ): Promise<ApiResponse<Sales>> {
+    // Inyectar automáticamente el ID de la empresa validada
+    dto.companyId = this.currentCompanyId;
+
     const useCase = new CreateSalesUseCase(
       this.inventoryRepository,
       this.salesRepository,
@@ -121,12 +144,23 @@ export class SalesController {
       this.productRepository,
       this.accountRepository,
       this.ledgerEntryRepository,
+      this.accountingPeriodRepository,
+      this.masterlistRepository,
     );
+
+    // Iniciar Transacción PostgreSQL P0
+    const tx = await this.dataSource.beginTransaction(
+      IsolationLevel.READ_COMMITTED,
+    );
+
     try {
       this.responseObj.status(201);
-      const sale = await useCase.execute(dto);
+      const sale = await useCase.execute(dto, {transaction: tx});
+      await tx.commit();
       return ApiResponse.success(sale, 'Venta creada exitosamente');
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      await tx.rollback();
+      this.responseObj.status(422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
@@ -134,7 +168,7 @@ export class SalesController {
   }
 
   // ------------------------------------------------------------------ //
-  // GET /sales  — Listar todas las ventas
+  // GET /sales  — Listar todas las ventas (Filtradas por Empresa)
   // ------------------------------------------------------------------ //
   @get('/sales')
   @response(200, {
@@ -153,12 +187,13 @@ export class SalesController {
     },
   })
   async findAll(): Promise<ApiResponse<Sales[]>> {
-    const sales = await this.salesRepository.findAll();
+    // Aislamiento Multiempresa P0: Filtrar por empresa activa
+    const sales = await this.salesRepository.findAllByCompany(this.currentCompanyId);
     return ApiResponse.success(sales, 'Ventas recuperadas exitosamente');
   }
 
   // ------------------------------------------------------------------ //
-  // GET /sales/{id}  — Obtener venta por ID
+  // GET /sales/{id}  — Obtener venta por ID (Verificación de Empresa)
   // ------------------------------------------------------------------ //
   @get('/sales/{id}')
   @response(200, {
@@ -182,8 +217,15 @@ export class SalesController {
     try {
       assertUuid(id);
       const sale = await this.salesRepository.findById(id);
+
+      // Aislamiento Multiempresa P0: Validar propiedad del recurso
+      if (sale.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para acceder a esta venta');
+      }
+
       return ApiResponse.success(sale, 'Venta recuperada exitosamente');
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
@@ -191,7 +233,7 @@ export class SalesController {
   }
 
   // ------------------------------------------------------------------ //
-  // GET /sales/{id}/items  — Ítems de una venta
+  // GET /sales/{id}/items  — Ítems de una venta (Verificación de Empresa)
   // ------------------------------------------------------------------ //
   @get('/sales/{id}/items')
   @response(200, {
@@ -214,12 +256,20 @@ export class SalesController {
   ): Promise<ApiResponse<SalesItem[]>> {
     try {
       assertUuid(id);
+      const sale = await this.salesRepository.findById(id);
+
+      // Aislamiento Multiempresa P0: Validar propiedad del recurso
+      if (sale.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para acceder a los ítems de esta venta');
+      }
+
       const items = await this.salesItemRepository.findBySalesId(id);
       return ApiResponse.success(
         items,
         'Ítems de la venta recuperados exitosamente',
       );
-    } catch (err: unknown) { this.responseObj.status(422);
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );

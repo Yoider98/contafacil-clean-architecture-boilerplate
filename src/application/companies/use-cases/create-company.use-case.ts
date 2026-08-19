@@ -1,5 +1,6 @@
 import {Company} from '../../../domain/companies/entities/company.entity';
 import {ICompanyRepository} from '../../../domain/companies/repositories/company.repository.interface';
+import {CompanyType} from '../../../domain/companies/enums/company-fiscal.enum';
 
 export interface CreateCompanyDto {
   name: string;

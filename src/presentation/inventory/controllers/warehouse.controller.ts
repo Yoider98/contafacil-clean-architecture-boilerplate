@@ -18,9 +18,10 @@ export class WarehouseController {
   constructor(
     @repository(WarehouseRepository)
     private warehouseRepository: WarehouseRepository,
-
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/warehouses', {
@@ -48,7 +49,7 @@ export class WarehouseController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['name', 'companyId'],
+            required: ['name'],
             properties: {
               companyId: {type: 'string'},
               name: {type: 'string'},
@@ -61,6 +62,7 @@ export class WarehouseController {
     warehouseData: Partial<Warehouse>,
   ): Promise<ApiResponse<Warehouse>> {
     try {
+      warehouseData.companyId = this.currentCompanyId;
       const useCase = new CreateWarehouseUseCase(this.warehouseRepository);
       this.responseObj.status(201);
       const warehouse = await useCase.execute(warehouseData);
@@ -92,13 +94,13 @@ export class WarehouseController {
     },
   })
   async getByCompany(
-    @param.query.string('companyId') companyId: string,
+    @param.query.string('companyId') companyId?: string,
   ): Promise<ApiResponse<Warehouse[]>> {
     try {
       const useCase = new GetWarehousesByCompanyUseCase(
         this.warehouseRepository,
       );
-      const warehouses = await useCase.execute(companyId);
+      const warehouses = await useCase.execute(companyId || this.currentCompanyId);
       return ApiResponse.success(
         warehouses,
         'Almacenes recuperados exitosamente',

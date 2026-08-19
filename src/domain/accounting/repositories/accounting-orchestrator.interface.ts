@@ -9,9 +9,12 @@ export interface SaleAccountingData {
     quantity: number;
     salePrice: number; // precio de venta por unidad
     purchaseCost: number; // costo de compra por unidad (para cálculo costo de ventas)
+    taxAmount?: number; // IVA total por la cantidad de este ítem
   }>;
   paymentMethod: string;
   total: number;
+  taxTotal?: number;
+  thirdPartyId?: string;
 }
 
 export interface PurchaseAccountingData {
@@ -22,8 +25,11 @@ export interface PurchaseAccountingData {
     inventoryAccountCode: string; // cuenta 1435 del producto
     quantity: number;
     cost: number; // costo por unidad
+    taxAmount?: number; // IVA total por la cantidad de este ítem
   }>;
   total: number;
+  taxTotal?: number;
+  thirdPartyId?: string;
 }
 
 export interface InventoryAdjustAccountingData {

@@ -8,6 +8,7 @@ import {
 } from '../../../shared/utils/tax-engine';
 
 export type InvoiceItem = {
+  productId?: string;
   description: string;
   quantity: number;
   unitPrice: number;
@@ -26,6 +27,7 @@ export class Invoice {
   reteICA: number;
   total: number;
   status: DocumentStatus;
+  resolutionWarning?: string;
 
   // DIAN fields
   cufe?: string;
@@ -38,6 +40,7 @@ export class Invoice {
   updatedAt: Date;
 
   constructor(data?: Partial<Invoice>) {
+    this.resolutionWarning = data?.resolutionWarning;
     this.id = data?.id ?? uuidv4();
     this.companyId = data?.companyId ?? '';
     this.resolutionId = data?.resolutionId;

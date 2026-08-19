@@ -65,3 +65,7 @@ typings/
 
 # Emacs auto-save file
 \#*#
+
+# ASAF Project Intelligence Cache
+.asaf/
+

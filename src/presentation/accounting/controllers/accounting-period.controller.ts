@@ -21,6 +21,8 @@ export class AccountingPeriodController {
     private accountingPeriodRepository: AccountingPeriodRepository,
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/accounting-periods')
@@ -32,18 +34,18 @@ export class AccountingPeriodController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'fromDate', 'toDate'],
+            required: ['fromDate', 'toDate'],
             properties: {
               companyId: {type: 'string'},
-              fromDate: {type: 'string', format: 'date'},
-              toDate: {type: 'string', format: 'date'},
+              fromDate: {type: 'string', format: 'date-time'},
+              toDate: {type: 'string', format: 'date-time'},
             },
           },
         },
       },
     })
     body: {
-      companyId: string;
+      companyId?: string;
       fromDate: string;
       toDate: string;
     },
@@ -54,7 +56,7 @@ export class AccountingPeriodController {
         this.accountingPeriodRepository,
       );
       const dto = {
-        companyId: body.companyId,
+        companyId: this.currentCompanyId,
         fromDate: new Date(body.fromDate),
         toDate: new Date(body.toDate),
       };
@@ -69,12 +71,12 @@ export class AccountingPeriodController {
 
   @get('/accounting-periods/open')
   @response(200, {description: 'Get open accounting period for company'})
-  async getOpen(@param.query.string('companyId') companyId: string) {
+  async getOpen(@param.query.string('companyId') companyId?: string) {
     try {
       const useCase = new GetOpenAccountingPeriodUseCase(
         this.accountingPeriodRepository,
       );
-      const period = await useCase.execute(companyId);
+      const period = await useCase.execute(companyId || this.currentCompanyId);
       return ApiResponse.success(period, 'Periodo abierto recuperado');
     } catch (err: unknown) { this.responseObj.status(422);
       return ApiResponse.error(

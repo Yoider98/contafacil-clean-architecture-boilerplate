@@ -24,6 +24,8 @@ export class PayableController {
     private payableRepository: PayableRepository,
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
+    @inject('currentCompanyId')
+    private currentCompanyId: string,
   ) {}
 
   @post('/payables')
@@ -35,7 +37,7 @@ export class PayableController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['companyId', 'thirdPartyId', 'amount'],
+            required: ['thirdPartyId', 'amount'],
             properties: {
               companyId: {type: 'string'},
               thirdPartyId: {type: 'string'},
@@ -48,7 +50,7 @@ export class PayableController {
       },
     })
     body: {
-      companyId: string;
+      companyId?: string;
       thirdPartyId: string;
       documentRef?: string;
       amount: number;
@@ -59,7 +61,7 @@ export class PayableController {
       this.responseObj.status(201);
       const useCase = new CreatePayableUseCase(this.payableRepository);
       const payable = await useCase.execute({
-        companyId: body.companyId,
+        companyId: this.currentCompanyId,
         thirdPartyId: body.thirdPartyId,
         documentRef: body.documentRef,
         amount: body.amount,
