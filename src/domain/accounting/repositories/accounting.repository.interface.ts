@@ -17,7 +17,7 @@ export interface IFiscalRegimeRepository {
 }
 
 export interface ILedgerEntryRepository {
-  create(entry: LedgerEntry): Promise<LedgerEntry>;
+  create(entry: LedgerEntry, options?: any): Promise<LedgerEntry>;
   findByAccount(accountId: string): Promise<LedgerEntry[]>;
   findByCompany(companyId: string): Promise<LedgerEntry[]>;
 }

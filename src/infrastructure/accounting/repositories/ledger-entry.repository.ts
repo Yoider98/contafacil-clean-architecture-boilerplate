@@ -13,7 +13,7 @@ export class LedgerEntryRepository implements ILedgerEntryRepository {
     this.lbRepository = new DefaultCrudRepository(LedgerEntryModel, dataSource);
   }
 
-  async create(entry: LedgerEntry): Promise<LedgerEntry>  {
+  async create(entry: LedgerEntry, options?: any): Promise<LedgerEntry>  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");

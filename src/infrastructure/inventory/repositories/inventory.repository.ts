@@ -38,4 +38,15 @@ export class InventoryRepository implements IInventoryRepository {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   }
+
+  async findMovementsByCompany(
+    companyId: string,
+    options?: AnyObject,
+  ): Promise<InventoryMovement[]>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }}, options);
+    return models.map(m => InventoryMapper.toMovementDomain(m));
+  }
 }

@@ -12,4 +12,8 @@ export interface IInventoryRepository {
     warehouseId: string,
     options?: AnyObject,
   ): Promise<number>;
+  findMovementsByCompany(
+    companyId: string,
+    options?: AnyObject,
+  ): Promise<InventoryMovement[]>;
 }

@@ -31,8 +31,9 @@ export class AuthInterceptor implements Provider<Interceptor> {
     const path = request.path;
     const method = request.method;
 
-    // Permitir acceso libre a endpoints públicos (Auth, Explorador API y Registro de usuario)
+    // Permitir acceso libre a endpoints públicos (Auth, Explorador API y Registro de usuario) y peticiones OPTIONS
     if (
+      method === 'OPTIONS' ||
       path === '/auth/login' ||
       path.startsWith('/explorer') ||
       path.startsWith('/openapi.json') ||
