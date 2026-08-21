@@ -38,4 +38,11 @@ export class QuotationItemRepository implements IQuotationItemRepository {
   }});
     return models.map(m => QuotationMapper.toQuotationItemDomain(m));
   }
+
+  async deleteByQuotationId(quotationId: string, options?: any): Promise<void>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }, options);
+  }
 }

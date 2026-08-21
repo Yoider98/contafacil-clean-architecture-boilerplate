@@ -1,5 +1,5 @@
-import {inject} from '@loopback/core';
-import {repository} from '@loopback/repository';
+import { inject } from '@loopback/core';
+import { repository } from '@loopback/repository';
 import {
   HttpErrors,
   get,
@@ -9,17 +9,22 @@ import {
   response,
   Response,
   RestBindings,
+  put,
 } from '@loopback/rest';
 import {
   CreateQuotationDto,
   CreateQuotationUseCase,
 } from '../../../application/sales/use-cases/create-quotation.use-case';
-import {Quotation} from '../../../domain/sales/entities/quotation.entity';
-import {QuotationItem} from '../../../domain/sales/entities/quotation-item.entity';
-import {QuotationRepository} from '../../../infrastructure/sales/repositories/quotation.repository';
-import {QuotationItemRepository} from '../../../infrastructure/sales/repositories/quotation-item.repository';
-import {MasterlistRepository} from '../../../infrastructure/shared/repositories/masterlist.repository';
-import {ApiResponse} from '../../../shared/responses/api.response';
+import {
+  UpdateQuotationDto,
+  UpdateQuotationUseCase,
+} from '../../../application/sales/use-cases/update-quotation.use-case';
+import { Quotation } from '../../../domain/sales/entities/quotation.entity';
+import { QuotationItem } from '../../../domain/sales/entities/quotation-item.entity';
+import { QuotationRepository } from '../../../infrastructure/sales/repositories/quotation.repository';
+import { QuotationItemRepository } from '../../../infrastructure/sales/repositories/quotation-item.repository';
+import { MasterlistRepository } from '../../../infrastructure/shared/repositories/masterlist.repository';
+import { ApiResponse } from '../../../shared/responses/api.response';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -48,7 +53,7 @@ export class QuotationController {
 
     @inject('currentCompanyId')
     private currentCompanyId: string,
-  ) {}
+  ) { }
 
   // POST /quotations — Crear una nueva cotización
   @post('/quotations', {
@@ -60,9 +65,9 @@ export class QuotationController {
             schema: {
               type: 'object',
               properties: {
-                success: {type: 'boolean'},
-                message: {type: 'string'},
-                data: {'x-ts-type': Quotation},
+                success: { type: 'boolean' },
+                message: { type: 'string' },
+                data: { 'x-ts-type': Quotation },
               },
             },
           },
@@ -80,11 +85,11 @@ export class QuotationController {
             type: 'object',
             required: ['thirdPartyId', 'items'],
             properties: {
-              thirdPartyId: {type: 'string'},
-              issueDate: {type: 'string'},
-              validityDays: {type: 'number'},
-              currency: {type: 'string'},
-              notes: {type: 'string'},
+              thirdPartyId: { type: 'string' },
+              issueDate: { type: 'string' },
+              validityDays: { type: 'number' },
+              currency: { type: 'string' },
+              notes: { type: 'string' },
               items: {
                 type: 'array',
                 minItems: 1,
@@ -92,9 +97,9 @@ export class QuotationController {
                   type: 'object',
                   required: ['productId', 'quantity', 'price'],
                   properties: {
-                    productId: {type: 'string'},
-                    quantity: {type: 'number', minimum: 1},
-                    price: {type: 'number', minimum: 0},
+                    productId: { type: 'string' },
+                    quantity: { type: 'number', minimum: 1 },
+                    price: { type: 'number', minimum: 0 },
                   },
                 },
               },
@@ -134,9 +139,9 @@ export class QuotationController {
         schema: {
           type: 'object',
           properties: {
-            success: {type: 'boolean'},
-            message: {type: 'string'},
-            data: {type: 'array', items: {'x-ts-type': Quotation}},
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: { type: 'array', items: { 'x-ts-type': Quotation } },
           },
         },
       },
@@ -158,9 +163,9 @@ export class QuotationController {
         schema: {
           type: 'object',
           properties: {
-            success: {type: 'boolean'},
-            message: {type: 'string'},
-            data: {'x-ts-type': Quotation},
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: { 'x-ts-type': Quotation },
           },
         },
       },
@@ -197,9 +202,9 @@ export class QuotationController {
         schema: {
           type: 'object',
           properties: {
-            success: {type: 'boolean'},
-            message: {type: 'string'},
-            data: {type: 'array', items: {'x-ts-type': QuotationItem}},
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: { type: 'array', items: { 'x-ts-type': QuotationItem } },
           },
         },
       },
@@ -227,6 +232,83 @@ export class QuotationController {
       this.responseObj.status(
         err instanceof HttpErrors.HttpError ? err.statusCode : 422,
       );
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  // PUT /quotations/{id} — Actualizar cotización existente
+  @put('/quotations/{id}')
+  @response(200, {
+    description: 'Cotización actualizada exitosamente',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: { 'x-ts-type': Quotation },
+          },
+        },
+      },
+    },
+  })
+  async update(
+    @param.path.string('id') id: string,
+    @requestBody({
+      description: 'Datos de la cotización a actualizar',
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['thirdPartyId', 'items'],
+            properties: {
+              thirdPartyId: { type: 'string' },
+              issueDate: { type: 'string' },
+              validityDays: { type: 'number' },
+              currency: { type: 'string' },
+              notes: { type: 'string' },
+              status: { type: 'string' },
+              items: {
+                type: 'array',
+                minItems: 1,
+                items: {
+                  type: 'object',
+                  required: ['productId', 'quantity', 'price'],
+                  properties: {
+                    productId: { type: 'string' },
+                    quantity: { type: 'number', minimum: 1 },
+                    price: { type: 'number', minimum: 0 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    dto: Omit<UpdateQuotationDto, 'id' | 'companyId'>,
+  ): Promise<ApiResponse<Quotation>> {
+    const updateDto: UpdateQuotationDto = {
+      ...dto,
+      id,
+      companyId: this.currentCompanyId,
+    };
+
+    const useCase = new UpdateQuotationUseCase(
+      this.quotationRepository,
+      this.quotationItemRepository,
+      this.masterlistRepository,
+    );
+
+    try {
+      const quotation = await useCase.execute(updateDto);
+      return ApiResponse.success(quotation, 'Cotización actualizada exitosamente');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );

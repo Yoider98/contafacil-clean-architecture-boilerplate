@@ -1,4 +1,4 @@
-import {DomainEntity} from '../../shared/domain.entity';
+import { DomainEntity } from '../../shared/domain.entity';
 
 export class Quotation extends DomainEntity {
   companyId: string;
@@ -13,6 +13,7 @@ export class Quotation extends DomainEntity {
   total: number;
   status: string; // DRAFT | APPROVED | EXPIRED
   createdAt: Date;
+  updatedAt?: Date;
 
   constructor(data?: Partial<Quotation>) {
     super(data);

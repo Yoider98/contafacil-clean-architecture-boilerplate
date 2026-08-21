@@ -6,6 +6,7 @@ export interface IQuotationRepository {
   findById(id: string): Promise<Quotation>;
   findAll(): Promise<Quotation[]>;
   findAllByCompany(companyId: string): Promise<Quotation[]>;
+  update(quotation: Quotation, options?: any): Promise<Quotation>;
 }
 
 export interface IQuotationItemRepository {
@@ -13,4 +14,5 @@ export interface IQuotationItemRepository {
   findById(id: string): Promise<QuotationItem>;
   findAll(): Promise<QuotationItem[]>;
   findByQuotationId(quotationId: string): Promise<QuotationItem[]>;
+  deleteByQuotationId(quotationId: string, options?: any): Promise<void>;
 }
