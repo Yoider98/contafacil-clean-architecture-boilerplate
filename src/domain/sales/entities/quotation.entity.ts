@@ -12,6 +12,10 @@ export class Quotation extends DomainEntity {
   retentionTotal: number;
   total: number;
   status: string; // DRAFT | APPROVED | EXPIRED
+  invoiceId?: string;
+  invoiceNumber?: string;
+  receiptId?: string;
+  receiptNumber?: string;
   createdAt: Date;
   updatedAt?: Date;
 
@@ -24,6 +28,10 @@ export class Quotation extends DomainEntity {
     this.retentionTotal = data?.retentionTotal ?? 0;
     this.total = data?.total ?? 0;
     this.status = data?.status ?? 'DRAFT';
+    this.invoiceId = data?.invoiceId;
+    this.invoiceNumber = data?.invoiceNumber;
+    this.receiptId = data?.receiptId;
+    this.receiptNumber = data?.receiptNumber;
     if (!this.createdAt) this.createdAt = new Date();
   }
 }

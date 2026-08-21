@@ -272,6 +272,10 @@ export class QuotationController {
               currency: { type: 'string' },
               notes: { type: 'string' },
               status: { type: 'string' },
+              invoiceId: { type: 'string' },
+              invoiceNumber: { type: 'string' },
+              receiptId: { type: 'string' },
+              receiptNumber: { type: 'string' },
               items: {
                 type: 'array',
                 minItems: 1,

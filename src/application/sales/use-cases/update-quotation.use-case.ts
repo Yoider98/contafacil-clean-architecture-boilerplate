@@ -23,6 +23,10 @@ export interface UpdateQuotationDto {
   currency?: string;
   notes?: string;
   status?: string;
+  invoiceId?: string;
+  invoiceNumber?: string;
+  receiptId?: string;
+  receiptNumber?: string;
   items: UpdateQuotationItemDto[];
 }
 
@@ -94,6 +98,10 @@ export class UpdateQuotationUseCase {
       currency: dto.currency ?? existing.currency,
       notes: dto.notes ?? existing.notes,
       status: dto.status ?? existing.status,
+      invoiceId: dto.invoiceId !== undefined ? dto.invoiceId : existing.invoiceId,
+      invoiceNumber: dto.invoiceNumber !== undefined ? dto.invoiceNumber : existing.invoiceNumber,
+      receiptId: dto.receiptId !== undefined ? dto.receiptId : existing.receiptId,
+      receiptNumber: dto.receiptNumber !== undefined ? dto.receiptNumber : existing.receiptNumber,
       subtotal,
       taxTotal,
       total,

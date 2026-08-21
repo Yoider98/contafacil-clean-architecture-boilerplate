@@ -87,6 +87,30 @@ export class QuotationModel extends Entity {
   status?: string;
 
   @property({
+    type: 'string',
+    postgresql: {columnName: 'invoice_id'},
+  })
+  invoiceId?: string;
+
+  @property({
+    type: 'string',
+    postgresql: {columnName: 'invoice_number'},
+  })
+  invoiceNumber?: string;
+
+  @property({
+    type: 'string',
+    postgresql: {columnName: 'receipt_id'},
+  })
+  receiptId?: string;
+
+  @property({
+    type: 'string',
+    postgresql: {columnName: 'receipt_number'},
+  })
+  receiptNumber?: string;
+
+  @property({
     type: 'date',
     default: new Date(),
     postgresql: {columnName: 'created_at'},
