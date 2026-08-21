@@ -29,6 +29,7 @@ export interface CreateSaleDto {
   companyId: string;
   warehouseId: string;
   paymentMethod: string;
+  thirdPartyId: string;
   items: CreateSaleItemDto[];
 }
 
@@ -55,6 +56,7 @@ export class CreateSalesUseCase {
     if (!dto.companyId) throw new Error('companyId is required');
     if (!dto.warehouseId) throw new Error('warehouseId is required');
     if (!dto.paymentMethod) throw new Error('paymentMethod is required');
+    if (!dto.thirdPartyId) throw new Error('thirdPartyId is required');
     if (!dto.items || dto.items.length === 0)
       throw new Error('At least one item is required');
 
@@ -135,6 +137,8 @@ export class CreateSalesUseCase {
       new Sales({
         companyId: dto.companyId,
         paymentMethod: dto.paymentMethod,
+        thirdPartyId: dto.thirdPartyId,
+        status: 'PENDING_INVOICE',
         subtotal,
         taxTotal,
         retentionTotal: 0,

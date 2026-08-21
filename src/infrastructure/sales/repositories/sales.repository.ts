@@ -36,4 +36,9 @@ export class SalesRepository implements ISalesRepository {
   }});
     return models.map(model => SalesMapper.toSalesDomain(model));
   }
+  async updateById(id: string, data: Partial<Sales>, options?: any): Promise<void>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
 }

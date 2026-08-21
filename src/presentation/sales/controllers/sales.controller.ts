@@ -5,6 +5,7 @@ import {
   get,
   param,
   post,
+  patch,
   requestBody,
   response,
   Response,
@@ -109,11 +110,12 @@ export class SalesController {
         'application/json': {
           schema: {
             type: 'object',
-            required: ['warehouseId', 'paymentMethod', 'items'],
+            required: ['warehouseId', 'paymentMethod', 'thirdPartyId', 'items'],
             properties: {
               companyId: {type: 'string', description: 'ID de la empresa'},
               warehouseId: {type: 'string', description: 'ID del almacén'},
               paymentMethod: {type: 'string', description: 'Método de pago'},
+              thirdPartyId: {type: 'string', description: 'ID del tercero/cliente'},
               items: {
                 type: 'array',
                 minItems: 1,
@@ -268,6 +270,63 @@ export class SalesController {
         items,
         'Ítems de la venta recuperados exitosamente',
       );
+    } catch (err: unknown) {
+      this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  // ------------------------------------------------------------------ //
+  // PATCH /sales/{id}  — Actualizar pedido de venta (Cambio de Estado)
+  // ------------------------------------------------------------------ //
+  @patch('/sales/{id}', {
+    responses: {
+      '200': {
+        description: 'Venta actualizada exitosamente',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {type: 'boolean'},
+                message: {type: 'string'},
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              status: {type: 'string'},
+              invoiceId: {type: 'string'},
+              invoiceNumber: {type: 'string'},
+            },
+          },
+        },
+      },
+    })
+    dto: {status?: string; invoiceId?: string; invoiceNumber?: string},
+  ): Promise<ApiResponse<void>> {
+    try {
+      assertUuid(id);
+      const sale = await this.salesRepository.findById(id);
+
+      if (sale.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para actualizar esta venta');
+      }
+
+      await this.salesRepository.updateById(id, dto);
+      return ApiResponse.success(undefined, 'Venta actualizada exitosamente');
     } catch (err: unknown) {
       this.responseObj.status(err instanceof HttpErrors.HttpError ? err.statusCode : 422);
       return ApiResponse.error(

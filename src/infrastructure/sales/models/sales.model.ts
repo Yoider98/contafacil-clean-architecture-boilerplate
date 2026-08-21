@@ -55,6 +55,35 @@ export class SalesModel extends Entity {
   paymentMethod: string;
 
   @property({
+    type: 'string',
+    required: false,
+    postgresql: {columnName: 'third_party_id'},
+  })
+  thirdPartyId?: string;
+
+  @property({
+    type: 'string',
+    required: true,
+    default: 'PENDING_INVOICE',
+    postgresql: {columnName: 'status'},
+  })
+  status: string;
+
+  @property({
+    type: 'string',
+    required: false,
+    postgresql: {columnName: 'invoice_id'},
+  })
+  invoiceId?: string;
+
+  @property({
+    type: 'string',
+    required: false,
+    postgresql: {columnName: 'invoice_number'},
+  })
+  invoiceNumber?: string;
+
+  @property({
     type: 'date',
     default: new Date(),
     postgresql: {columnName: 'created_at'},

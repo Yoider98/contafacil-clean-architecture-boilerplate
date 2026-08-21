@@ -6,6 +6,7 @@ export interface ISalesRepository {
   findById(id: string): Promise<Sales>;
   findAll(): Promise<Sales[]>;
   findAllByCompany(companyId: string): Promise<Sales[]>;
+  updateById(id: string, data: Partial<Sales>, options?: any): Promise<void>;
 }
 
 export interface ISalesItemRepository {
