@@ -19,6 +19,9 @@ import {
   UpdateQuotationDto,
   UpdateQuotationUseCase,
 } from '../../../application/sales/use-cases/update-quotation.use-case';
+import {
+  ExpireQuotationsUseCase,
+} from '../../../application/sales/use-cases/expire-quotations.use-case';
 import { Quotation } from '../../../domain/sales/entities/quotation.entity';
 import { QuotationItem } from '../../../domain/sales/entities/quotation-item.entity';
 import { QuotationRepository } from '../../../infrastructure/sales/repositories/quotation.repository';
@@ -313,6 +316,42 @@ export class QuotationController {
       return ApiResponse.success(quotation, 'Cotización actualizada exitosamente');
     } catch (err: unknown) {
       this.responseObj.status(422);
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  // POST /quotations/trigger-expiration — Forzar la expiración manual de cotizaciones vencidas
+  @post('/quotations/trigger-expiration')
+  @response(200, {
+    description: 'Cotizaciones procesadas y expiradas exitosamente',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: {type: 'boolean'},
+            message: {type: 'string'},
+            data: {
+              type: 'object',
+              properties: {
+                processed: {type: 'number'},
+                expired: {type: 'number'},
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async triggerExpiration(): Promise<ApiResponse<{processed: number; expired: number}>> {
+    const useCase = new ExpireQuotationsUseCase(this.quotationRepository);
+    try {
+      const result = await useCase.execute();
+      return ApiResponse.success(result, 'Cotizaciones procesadas y expiradas exitosamente');
+    } catch (err: unknown) {
+      this.responseObj.status(500);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
