@@ -82,7 +82,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^16.18.101",
     "@types/pdfmake": "^0.3.3",
-    "asaf-framework": "github:Yoider98/ASAF#develop",
+    "asaf-framework": "git+https://github.com/Yoider98/ASAF.git#develop",
     "eslint": "^8.57.0",
     "source-map-support": "^0.5.21",
     "typescript": "~5.2.2"
