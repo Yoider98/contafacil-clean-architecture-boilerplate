@@ -59,8 +59,16 @@ export class ThirdPartyRepository implements IThirdPartyRepository {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       companyId,
-      isActive: filter?.isActive ?? true,
     };
+
+    if (filter?.includeInactive)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
+    } else {
+      where.isActive = filter?.isActive ?? true;
+    }
 
     if (filter?.search)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura

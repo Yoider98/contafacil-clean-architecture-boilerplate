@@ -5,6 +5,7 @@ export interface GetThirdPartiesFilter {
   role?: string;
   search?: string;
   isActive?: boolean;
+  includeInactive?: boolean;
 }
 
 export class GetThirdPartiesUseCase {

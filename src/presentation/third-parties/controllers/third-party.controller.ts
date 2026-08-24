@@ -92,10 +92,11 @@ export class ThirdPartyController {
     @param.query.string('companyId', { required: true }) companyId: string,
     @param.query.string('role') role?: string,
     @param.query.string('search') search?: string,
+    @param.query.boolean('includeInactive') includeInactive?: boolean,
   ) {
     try {
       const useCase = new GetThirdPartiesUseCase(this.thirdPartyRepository);
-      const list = await useCase.execute(companyId, { role, search });
+      const list = await useCase.execute(companyId, { role, search, includeInactive });
       return ApiResponse.success(list, 'Terceros obtenidos exitosamente');
     } catch (error) {
       throw new HttpErrors.BadRequest(
