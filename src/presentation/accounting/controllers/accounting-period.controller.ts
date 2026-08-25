@@ -3,6 +3,7 @@ import {repository} from '@loopback/repository';
 import {
   post,
   get,
+  put,
   param,
   requestBody,
   response,
@@ -98,6 +99,88 @@ export class AccountingPeriodController {
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
+    }
+  }
+
+  @get('/accounting-periods')
+  @response(200, {
+    description: 'Get all accounting periods for company',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: {type: 'boolean'},
+            message: {type: 'string'},
+            data: {type: 'array', items: {type: 'object'}},
+          },
+        },
+      },
+    },
+  })
+  async getAll(@param.query.string('companyId') companyId?: string) {
+    try {
+      const targetCompany = companyId || this.currentCompanyId;
+      if (!targetCompany) return ApiResponse.error('companyId is required');
+      const periods = await this.accountingPeriodRepository.findAllByCompany(targetCompany);
+      return ApiResponse.success(periods, 'Periodos fiscales recuperados');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
+      return ApiResponse.error(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  @put('/accounting-periods/{id}')
+  @response(200, {
+    description: 'Update accounting period dates',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: {type: 'boolean'},
+            message: {type: 'string'},
+            data: {type: 'object'},
+          },
+        },
+      },
+    },
+  })
+  async update(
+    @param.path.string('id') id: string,
+    @requestBody({
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['fromDate', 'toDate'],
+            properties: {
+              fromDate: {type: 'string', format: 'date-time'},
+              toDate: {type: 'string', format: 'date-time'},
+            },
+          },
+        },
+      },
+    })
+    body: {fromDate: string; toDate: string},
+  ) {
+    try {
+      const period = await this.accountingPeriodRepository.findById(id);
+      if (!period) return ApiResponse.error('Periodo no encontrado');
+      if (period.companyId !== this.currentCompanyId) {
+        return ApiResponse.error('No autorizado');
+      }
+
+      period.fromDate = new Date(body.fromDate);
+      period.toDate = new Date(body.toDate);
+      period.updatedAt = new Date();
+
+      const updated = await this.accountingPeriodRepository.save(period);
+      return ApiResponse.success(updated, 'Periodo contable actualizado');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
+      return ApiResponse.error(err instanceof Error ? err.message : String(err));
     }
   }
 }
