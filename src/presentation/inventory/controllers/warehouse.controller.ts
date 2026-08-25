@@ -4,12 +4,14 @@ import {
   get,
   param,
   post,
+  put,
   requestBody,
   Response,
   RestBindings,
 } from '@loopback/rest';
 import {CreateWarehouseUseCase} from '../../../application/inventory/use-cases/create-warehouse.use-case';
 import {GetWarehousesByCompanyUseCase} from '../../../application/inventory/use-cases/get-warehouses-by-company.use-case';
+import {UpdateWarehouseUseCase} from '../../../application/inventory/use-cases/update-warehouse.use-case';
 import {Warehouse} from '../../../domain/inventory/entities/warehouse.entity';
 import {WarehouseRepository} from '../../../infrastructure/inventory/repositories/warehouse.repository';
 import {ApiResponse} from '../../../shared/responses/api.response';
@@ -106,6 +108,54 @@ export class WarehouseController {
         'Almacenes recuperados exitosamente',
       );
     } catch (err: unknown) { this.responseObj.status(422);
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  @put('/warehouses/{id}', {
+    responses: {
+      '200': {
+        description: 'Warehouse updated successfully',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {type: 'boolean'},
+                message: {type: 'string'},
+                data: {'x-ts-type': Warehouse},
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async update(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: {type: 'string'},
+              location: {type: 'string'},
+            },
+          },
+        },
+      },
+    })
+    warehouseData: Partial<Warehouse>,
+  ): Promise<ApiResponse<Warehouse>> {
+    try {
+      const useCase = new UpdateWarehouseUseCase(this.warehouseRepository);
+      const updated = await useCase.execute(id, this.currentCompanyId, warehouseData);
+      return ApiResponse.success(updated, 'Almacén actualizado exitosamente');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
