@@ -4,6 +4,7 @@ import {
   get,
   param,
   post,
+  patch,
   requestBody,
   Response,
   RestBindings,
@@ -119,6 +120,75 @@ export class ProductController {
         'Productos recuperados exitosamente',
       );
     } catch (err: unknown) { this.responseObj.status(422);
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  @patch('/products/{id}', {
+    responses: {
+      '200': {
+        description: 'Producto actualizado exitosamente',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {type: 'boolean'},
+                message: {type: 'string'},
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: {type: 'string'},
+              sku: {type: 'string'},
+              purchasePrice: {type: 'number'},
+              salePrice: {type: 'number'},
+              stockMin: {type: 'number'},
+              active: {type: 'boolean'},
+              inventoryAccountCode: {type: 'string'},
+              costAccountCode: {type: 'string'},
+              taxPercentage: {type: 'string'},
+              unitOfMeasure: {type: 'string'},
+              warehouseId: {type: 'string'},
+            },
+          },
+        },
+      },
+    })
+    productData: Partial<Product>,
+  ): Promise<ApiResponse<void>> {
+    try {
+      const existing = await this.productRepository.findById(id);
+      if (!existing || existing.companyId !== this.currentCompanyId) {
+        this.responseObj.status(404);
+        return ApiResponse.error('Product not found');
+      }
+
+      const updated = new Product({
+        ...existing,
+        ...productData,
+        id,
+        companyId: this.currentCompanyId
+      });
+
+      await this.productRepository.save(updated);
+      this.responseObj.status(200);
+      return ApiResponse.success(undefined, 'Producto actualizado exitosamente');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
       return ApiResponse.error(
         err instanceof Error ? err.message : String(err),
       );
