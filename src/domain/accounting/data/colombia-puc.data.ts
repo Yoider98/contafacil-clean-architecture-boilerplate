@@ -58,11 +58,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'clase',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
     code: '11',
     name: 'Disponible',
     level: 'grupo',
@@ -3483,56 +3478,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'subcuenta',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
     code: '21',
     name: 'Obligaciones financieras',
     level: 'grupo',
@@ -5128,56 +5073,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'subcuenta',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
     code: '31',
     name: 'Capital social',
     level: 'grupo',
@@ -5746,56 +5641,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     code: '389520',
     name: 'Inventario de semovientes',
     level: 'subcuenta',
-  },
-  {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
   },
   {
     code: '41',
@@ -8313,56 +8158,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'subcuenta',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
     code: '51',
     name: 'Operacionales de administración',
     level: 'grupo',
@@ -10643,56 +10438,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'subcuenta',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de ventas',
-    level: 'clase',
-  },
-  {
     code: '61',
     name: 'Costo de ventas y de prestación de servicios',
     level: 'grupo',
@@ -12078,56 +11823,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     level: 'subcuenta',
   },
   {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
     code: '71',
     name: 'Materia prima',
     level: 'grupo',
@@ -12146,56 +11841,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     code: '74',
     name: 'Contratos de servicios',
     level: 'grupo',
-  },
-  {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
   },
   {
     code: '81',
@@ -12626,56 +12271,6 @@ export const COLOMBIA_PUC_ACCOUNTS: PUCAccount[] = [
     code: '86',
     name: 'Deudoras de control por contra (CR)',
     level: 'grupo',
-  },
-  {
-    code: '1',
-    name: 'Activo',
-    level: 'clase',
-  },
-  {
-    code: '2',
-    name: 'Pasivo',
-    level: 'clase',
-  },
-  {
-    code: '3',
-    name: 'Patrimonio',
-    level: 'clase',
-  },
-  {
-    code: '4',
-    name: 'Ingresos',
-    level: 'clase',
-  },
-  {
-    code: '5',
-    name: 'Gastos',
-    level: 'clase',
-  },
-  {
-    code: '6',
-    name: 'Costos de venta',
-    level: 'clase',
-  },
-  {
-    code: '7',
-    name: 'Costos de producción o de operación',
-    level: 'clase',
-  },
-  {
-    code: '8',
-    name: 'Cuentas de orden deudoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
-  },
-  {
-    code: '9',
-    name: 'Cuentas de orden acreedoras',
-    level: 'clase',
   },
   {
     code: '91',
