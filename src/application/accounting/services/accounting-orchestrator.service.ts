@@ -74,6 +74,16 @@ export class AccountingOrchestratorService implements IAccountingOrchestrator  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
+  } else if (data.paymentMethod === 'CREDIT')  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
+
+    for (const item of data.items)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
   }
 
       // Asiento 3: Costo de ventas
@@ -91,6 +101,16 @@ export class AccountingOrchestratorService implements IAccountingOrchestrator  {
   async recordPurchaseAccounting(
     data: PurchaseAccountingData,
   ): Promise<LedgerEntry[]>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  } else if (data.paymentMethod === 'BANK')  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }
+
+    for (const item of data.items)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");

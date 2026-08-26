@@ -27,6 +27,7 @@ export interface PurchaseAccountingData {
     cost: number; // costo por unidad
     taxAmount?: number; // IVA total por la cantidad de este ítem
   }>;
+  paymentMethod?: string;
   total: number;
   taxTotal?: number;
   thirdPartyId?: string;

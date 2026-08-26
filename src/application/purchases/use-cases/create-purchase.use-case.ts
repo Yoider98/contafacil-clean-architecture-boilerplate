@@ -17,6 +17,8 @@ import {IAccountingPeriodRepository} from '../../../domain/accounting/repositori
 import {IMasterlistRepository} from '../../../domain/shared/repositories/masterlist.repository.interface';
 import {MasterlistCategory} from '../../../domain/shared/enums/masterlist-category.enum';
 import {AnyObject} from '@loopback/repository';
+import {Payable} from '../../../domain/payables/entities/payable.entity';
+import {IPayableRepository} from '../../../domain/payables/repositories/payable.repository.interface';
 
 export interface CreatePurchaseItemDto {
   productId: string;
@@ -28,6 +30,7 @@ export interface CreatePurchaseItemDto {
 export interface CreatePurchaseDto {
   companyId: string;
   supplier?: string;
+  paymentMethod?: string; // CASH, BANK, CREDIT
   items: CreatePurchaseItemDto[];
 }
 
@@ -41,6 +44,7 @@ export class CreatePurchaseUseCase {
     private readonly ledgerEntryRepository?: ILedgerEntryRepository,
     private readonly accountingPeriodRepository?: IAccountingPeriodRepository,
     private readonly masterlistRepository?: IMasterlistRepository,
+    private readonly payableRepository?: IPayableRepository,
   )  { /* Inyectado por constructor */ }
 
   async execute(dto: CreatePurchaseDto, options?: AnyObject): Promise<Purchase>  {
@@ -170,6 +174,15 @@ export class CreatePurchaseUseCase {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   });
+    }
+
+    // 7. Si el pago es a CRÉDITO, generar cuenta por pagar (Payable)
+    if (dto.paymentMethod === 'CREDIT' && this.payableRepository)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+      );
     }
 
     return purchase;

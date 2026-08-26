@@ -18,6 +18,8 @@ import {IAccountingPeriodRepository} from '../../../domain/accounting/repositori
 import {IMasterlistRepository} from '../../../domain/shared/repositories/masterlist.repository.interface';
 import {MasterlistCategory} from '../../../domain/shared/enums/masterlist-category.enum';
 import {AnyObject} from '@loopback/repository';
+import {Receivable} from '../../../domain/receivables/entities/receivable.entity';
+import {IReceivableRepository} from '../../../domain/receivables/repositories/receivable.repository.interface';
 
 export interface CreateSaleItemDto {
   productId: string;
@@ -43,6 +45,7 @@ export class CreateSalesUseCase {
     private readonly ledgerEntryRepository?: ILedgerEntryRepository,
     private readonly accountingPeriodRepository?: IAccountingPeriodRepository,
     private readonly masterlistRepository?: IMasterlistRepository,
+    private readonly receivableRepository?: IReceivableRepository,
   )  { /* Inyectado por constructor */ }
 
   async execute(dto: CreateSaleDto, options?: AnyObject): Promise<Sales>  {
@@ -198,6 +201,15 @@ export class CreateSalesUseCase {
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
   });
+    }
+
+    // 9. Si el pago es a CRÉDITO, generar cuenta por cobrar (Receivable)
+    if (dto.paymentMethod === 'CREDIT' && this.receivableRepository)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+      );
     }
 
     return sale;

@@ -39,6 +39,7 @@ function assertUuid(id: string, label = 'id'): void {
   }
 }
 
+import {ReceivableRepository} from '../../../infrastructure/receivables/repositories/receivable.repository';
 import {IsolationLevel} from '@loopback/repository';
 
 export class SalesController {
@@ -78,6 +79,9 @@ export class SalesController {
 
     @repository(MasterlistRepository)
     private masterlistRepository: MasterlistRepository,
+
+    @repository(ReceivableRepository)
+    private receivableRepository: ReceivableRepository,
   ) {}
 
   // ------------------------------------------------------------------ //
@@ -148,6 +152,7 @@ export class SalesController {
       this.ledgerEntryRepository,
       this.accountingPeriodRepository,
       this.masterlistRepository,
+      this.receivableRepository,
     );
 
     // Iniciar Transacción PostgreSQL P0

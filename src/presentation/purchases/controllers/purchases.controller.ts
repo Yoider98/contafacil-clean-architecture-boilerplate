@@ -38,6 +38,7 @@ function assertUuid(id: string, label = 'id'): void {
   }
 }
 
+import {PayableRepository} from '../../../infrastructure/payables/repositories/payable.repository';
 import {IsolationLevel} from '@loopback/repository';
 
 export class PurchasesController {
@@ -77,6 +78,9 @@ export class PurchasesController {
 
     @repository(MasterlistRepository)
     private masterlistRepository: MasterlistRepository,
+
+    @repository(PayableRepository)
+    private payableRepository: PayableRepository,
   ) {}
 
   // POST /purchases — Crear compra + stock IN automático (Transaccionado & Protegido)
@@ -110,6 +114,7 @@ export class PurchasesController {
             properties: {
               companyId: {type: 'string'},
               supplier: {type: 'string'},
+              paymentMethod: {type: 'string'},
               items: {
                 type: 'array',
                 minItems: 1,
@@ -143,6 +148,7 @@ export class PurchasesController {
       this.ledgerEntryRepository,
       this.accountingPeriodRepository,
       this.masterlistRepository,
+      this.payableRepository,
     );
 
     // Iniciar Transacción PostgreSQL P0
