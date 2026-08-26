@@ -10,6 +10,7 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {ReceivableRepository} from '../../../infrastructure/receivables/repositories/receivable.repository';
+import {QuotationRepository} from '../../../infrastructure/sales/repositories/quotation.repository';
 import {CreateReceivableUseCase} from '../../../application/receivables/use-cases/create-receivable.use-case';
 import {ApplyPaymentToReceivableUseCase} from '../../../application/receivables/use-cases/apply-payment-receivable.use-case';
 import {ReconcileReceivablesUseCase} from '../../../application/receivables/use-cases/reconcile-receivables.use-case';
@@ -22,6 +23,8 @@ export class ReceivableController {
   constructor(
     @repository(ReceivableRepository)
     private receivableRepository: ReceivableRepository,
+    @repository(QuotationRepository)
+    private quotationRepository: QuotationRepository,
     @inject(RestBindings.Http.RESPONSE)
     private responseObj: Response,
     @inject('currentCompanyId')
@@ -88,18 +91,20 @@ export class ReceivableController {
             required: ['amount'],
             properties: {
               amount: {type: 'number'},
+              reference: {type: 'string'},
             },
           },
         },
       },
     })
-    body: {amount: number},
+    body: {amount: number; reference?: string},
   ) {
     try {
       const useCase = new ApplyPaymentToReceivableUseCase(
         this.receivableRepository,
+        this.quotationRepository,
       );
-      const receivable = await useCase.execute(id, body.amount);
+      const receivable = await useCase.execute(id, body.amount, body.reference);
       return ApiResponse.success(receivable, 'Pago aplicado correctamente');
     } catch (err: unknown) { this.responseObj.status(422);
       return ApiResponse.error(
