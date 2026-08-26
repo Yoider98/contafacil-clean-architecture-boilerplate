@@ -1,6 +1,7 @@
 import {
   post,
   get,
+  patch,
   param,
   requestBody,
   response,
@@ -10,6 +11,7 @@ import {inject} from '@loopback/core';
 import {InvoiceResolutionRepository} from '../../../infrastructure/invoices/repositories/invoice-resolution.repository';
 import {CreateInvoiceResolutionUseCase} from '../../../application/invoices/use-cases/create-invoice-resolution.use-case';
 import {InvoiceResolutionModel} from '../../../infrastructure/invoices/models/invoice-resolution.model';
+import {InvoiceResolution} from '../../../domain/invoices/entities/invoice-resolution.entity';
 import {ApiResponse} from '../../../shared/responses/api.response';
 
 export class InvoiceResolutionController {
@@ -122,6 +124,60 @@ export class InvoiceResolutionController {
     } catch (error) {
       throw new HttpErrors.BadRequest(
         error instanceof Error ? error.message : 'Error al generar consecutivo',
+      );
+    }
+  }
+
+  @patch('/invoice-resolutions/{id}', {
+    responses: {
+      '200': {
+        description: 'Resolución de facturación actualizada exitosamente',
+        content: {'application/json': {schema: {type: 'object'}}},
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              resolutionNumber: {type: 'string'},
+              prefix: {type: 'string'},
+              fromNumber: {type: 'number'},
+              toNumber: {type: 'number'},
+              validFrom: {type: 'string', format: 'date-time'},
+              validTo: {type: 'string', format: 'date-time'},
+              technicalKey: {type: 'string'},
+              documentType: {type: 'string'},
+              isActive: {type: 'boolean'},
+            },
+          },
+        },
+      },
+    })
+    data: Partial<InvoiceResolutionModel>,
+  ): Promise<ApiResponse<void>> {
+    try {
+      const existing = await this.resolutionRepository.findById(id, this.currentCompanyId);
+      if (!existing) {
+        throw new Error('Resolución de facturación no encontrada');
+      }
+
+      const updated = new InvoiceResolution({
+        ...existing,
+        ...data,
+        id,
+        companyId: this.currentCompanyId
+      } as any);
+
+      await this.resolutionRepository.update(updated);
+      return ApiResponse.success(undefined, 'Resolución de facturación actualizada exitosamente');
+    } catch (error) {
+      throw new HttpErrors.BadRequest(
+        error instanceof Error ? error.message : 'Error al actualizar resolución de facturación',
       );
     }
   }
