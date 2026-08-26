@@ -5,7 +5,7 @@ import {
 import DocumentStatus from '../../../domain/shared/enums/document-status.enum';
 import {IInvoiceRepository} from '../../../domain/invoices/repositories/invoice.repository';
 import {IInvoiceResolutionRepository} from '../../../domain/invoices/repositories/invoice-resolution.repository';
-import {InvoiceDocumentType} from '../../../domain/invoices/entities/invoice-resolution.entity';
+import {InvoiceResolution, InvoiceDocumentType} from '../../../domain/invoices/entities/invoice-resolution.entity';
 import {AnyObject} from '@loopback/repository';
 
 export interface CreateInvoiceDTO {
@@ -30,7 +30,7 @@ export class CreateInvoiceUseCase {
   }
 
     // 1. Obtener la resolución de facturación activa para la empresa
-    const resolution = await this.resolutionRepository.findActiveByDocumentType(
+    let resolution = await this.resolutionRepository.findActiveByDocumentType(
       dto.companyId,
       InvoiceDocumentType.INVOICE,
     );
@@ -39,7 +39,9 @@ export class CreateInvoiceUseCase {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  }
+  });
+      resolution = await this.resolutionRepository.create(defaultResolution);
+    }
 
     // 2. Validar vigencia de la resolución
     if (!resolution.isValidAt(new Date())) {
