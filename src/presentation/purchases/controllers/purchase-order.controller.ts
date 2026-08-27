@@ -5,6 +5,7 @@ import {
   get,
   param,
   post,
+  patch,
   requestBody,
   response,
   Response,
@@ -220,6 +221,62 @@ export class PurchaseOrderController {
         items,
         'Ítems de la orden de compra recuperados exitosamente',
       );
+    } catch (err: unknown) {
+      this.responseObj.status(
+        err instanceof HttpErrors.HttpError ? err.statusCode : 422,
+      );
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  // PATCH /purchase-orders/{id} — Actualizar orden de compra
+  @patch('/purchase-orders/{id}')
+  @response(200, {
+    description: 'Orden de compra actualizada',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: {type: 'boolean'},
+            message: {type: 'string'},
+          },
+        },
+      },
+    },
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              status: {type: 'string'},
+              notes: {type: 'string'},
+            },
+          },
+        },
+      },
+    })
+    body: {status?: string; notes?: string},
+  ): Promise<ApiResponse<void>> {
+    try {
+      assertUuid(id);
+      const order = await this.purchaseOrderRepository.findById(id);
+      if (order.companyId !== this.currentCompanyId) {
+        throw new HttpErrors.Forbidden('No tienes permiso para actualizar esta orden');
+      }
+
+      if (body.status) order.status = body.status;
+      if (body.notes !== undefined) order.notes = body.notes;
+
+      await this.purchaseOrderRepository.update(order);
+      return ApiResponse.success(undefined, 'Orden de compra actualizada exitosamente');
     } catch (err: unknown) {
       this.responseObj.status(
         err instanceof HttpErrors.HttpError ? err.statusCode : 422,
