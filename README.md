@@ -68,7 +68,14 @@ Antes de facturar o realizar operaciones, puedes poblar la base de datos de Supa
   node scripts/seed-masterlists.js
   ```
 
-### 2. Simulación Multiempresa Extremo a Extremo (E2E)
+### 2. Siembra de Tarifas DIAN y Unidades de Medida (UOM)
+Pobla la base de datos con las tarifas oficiales de IVA DIAN (19% General, 5% Reducida, 0% Exento, Excluido) y las unidades de medida globales estándar (`UND`, `KG`, `M`, `L`, `PAQ`, `CAJ`):
+```bash
+node scratch-seed-uom.js
+node scratch-seed-iva.js
+```
+
+### 3. Simulación Multiempresa Extremo a Extremo (E2E)
 Para simular el flujo contable completo del ERP:
 ```bash
 node scripts/run-e2e-all-scenarios.js
@@ -79,6 +86,9 @@ Este script creará dinámicamente y auditará en caliente:
 * **Escenario C (Manufactura):** Entrada de materia prima (telas), consumo industrial en Kardex para confección y entrada de camisas listas a producto terminado, facturación y costo de ventas.
 
 *Al finalizar, se creará automáticamente el reporte en [docs/e2e-created-ids.md](file:///d:/GitHub/Contafacil/saas-backend/docs/e2e-created-ids.md) con todos los IDs y el token JWT de la prueba.*
+
+### 4. Consultas Jerárquicas del PUC (Libro Auxiliar)
+El endpoint contable de transacciones (`findEntries`) soporta búsquedas por código de cuenta PUC (ej. grupo `11` o `1110`) retornando todos los movimientos asociados recursivamente a sus subcuentas hijas además de búsquedas por UUID.
 
 ---
 
