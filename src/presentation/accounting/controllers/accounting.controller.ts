@@ -430,13 +430,42 @@ export class AccountingController {
   ): Promise<ApiResponse<LedgerEntry[]>> {
     try {
       let result: LedgerEntry[] = [];
+      const activeCompanyId = companyId || this.currentCompanyId;
+
       if (accountId) {
-        result = await this.ledgerEntryRepository.findByAccount(accountId);
-      } else if (companyId) {
-        result = await this.ledgerEntryRepository.findByCompany(companyId);
+        const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        let accountCode = '';
+
+        if (UUID_REGEX.test(accountId)) {
+          try {
+            const acc = await this.accountRepository.findById(accountId);
+            accountCode = acc.code;
+          } catch (err) {
+            result = await this.ledgerEntryRepository.findByAccount(accountId);
+            return ApiResponse.success(result, 'Asientos contables recuperados exitosamente');
+          }
+        } else {
+          accountCode = accountId;
+        }
+
+        const allCompanyAccounts = await this.accountRepository.findAll(activeCompanyId);
+        const matchingAccountIds = allCompanyAccounts
+          .filter(acc => acc.code.startsWith(accountCode))
+          .map(acc => acc.id)
+          .filter(Boolean) as string[];
+
+        if (matchingAccountIds.length > 0) {
+          const allEntries = await this.ledgerEntryRepository.findByCompany(activeCompanyId);
+          result = allEntries.filter(entry => matchingAccountIds.includes(entry.accountId));
+        } else {
+          result = [];
+        }
+      } else if (activeCompanyId) {
+        result = await this.ledgerEntryRepository.findByCompany(activeCompanyId);
       } else {
         return ApiResponse.error('accountId or companyId is required');
       }
+
       return ApiResponse.success(
         result,
         'Asientos contables recuperados exitosamente',
