@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import {LedgerEntry} from '../../../domain/accounting/entities/ledger-entry.entity';
+import {Account} from '../../../domain/accounting/entities/account.entity';
 import {
   IAccountingOrchestrator,
   InventoryAdjustAccountingData,
@@ -17,11 +18,12 @@ import {
  * Lógica contable (PUC colombiano):
  *
  * VENTA:
- *   DB 1105/1110 (Caja o Banco) | CR 4135 (Ingresos - comercio)  → por el valor de la venta
+ *   DB 1105/1110 (Caja o Banco) | CR 4135 (Ingresos - comercio)  → por el valor de la venta (IVA incluido)
  *   DB 6135 (Costo de ventas)   | CR 1435 (Inventario - producto) → por el costo del inventario
  *
  * COMPRA:
  *   DB 1435 (Inventario - producto) | CR 2205 (Proveedores nacionales) → por el costo de compra
+ *   DB 2408 (IVA Descontable)       | CR 2205 (Proveedores nacionales) → por el valor de IVA
  *
  * AJUSTE POSITIVO (entrada de inventario sin compra):
  *   DB 1435 (Inventario) | CR 4255 (Aprovechamientos) → por el valor del costo unitario
@@ -33,6 +35,50 @@ export class AccountingOrchestratorService implements IAccountingOrchestrator  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
+  }
+
+  /**
+   * Obtiene una cuenta existente o la crea con valores por defecto si no existe en la empresa.
+   */
+  private async getOrCreateAccount(
+    companyId: string,
+    code: string,
+  ): Promise<Account | null>  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  } } = {
+      '1105': { name: 'Caja General', type: 'Activo' },
+      '1110': { name: 'Bancos', type: 'Activo' },
+      '1305': { name: 'Clientes Nacionales', type: 'Activo' },
+      '1435': { name: 'Mercancías no fabricadas por la empresa', type: 'Activo' },
+      '2205': { name: 'Proveedores Nacionales', type: 'Pasivo' },
+      '2408': { name: 'Impuesto sobre las ventas por pagar (IVA)', type: 'Pasivo' },
+      '4135': { name: 'Comercio al por mayor y al por menor (Ingreso)', type: 'Ingreso' },
+      '5195': { name: 'Gastos diversos', type: 'Gasto' },
+      '6135': { name: 'Comercio al por mayor y al por menor (Costo)', type: 'Costo' },
+    };
+
+    const info = defaultNames[code] || { name: `Cuenta Auxiliar ${code}`, type: 'Activo' };
+
+    try {
+      return await this.accountRepository.create(
+        new Account({
+          id: uuidv4(),
+          companyId,
+          code,
+          name: info.name,
+          type: info.type,
+          description: `Cuenta creada automáticamente por el sistema para el código ${code}`
+        })
+      );
+    } catch (err)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  }:`, err);
+      return null;
+    }
   }
 
   /**
@@ -80,19 +126,65 @@ export class AccountingOrchestratorService implements IAccountingOrchestrator  {
     throw new Error("Showcase: Método no implementado.");
   }
 
+    const debitAccount = await this.getOrCreateAccount(data.companyId, debitAccountCode);
+    let totalSaleAmount = 0;
+
     for (const item of data.items)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  }
+  })
+          )
+        );
+      }
 
-      // Asiento 3: Costo de ventas
-      // DB Costo ventas (6135) | CR Inventario producto (1435)
+      // Crédito 2: IVA Generado (2408)
+      if (taxAmount > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+            )
+          );
+        }
+      }
+
+      // Costo de ventas (DB 6135 Costo | CR 1435 Inventario)
       if (costTotal > 0)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  }
+  })
+            )
+          );
+
+          // CR Inventario producto (1435)
+          entries.push(
+            await this.ledgerEntryRepository.create(
+              new LedgerEntry({
+                id: uuidv4(),
+                companyId: data.companyId,
+                accountId: invAccount.id,
+                amount: -costTotal, // negativo = crédito
+                referenceType: 'SALE',
+                referenceId: data.saleId,
+                createdAt: new Date(),
+                thirdPartyId: data.thirdPartyId,
+              })
+            )
+          );
+        }
+      }
+    }
+
+    // Débito Único: Banco/Caja/Clientes por el gran total
+    if (debitAccount && totalSaleAmount > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+        )
+      );
     }
 
     return entries;
@@ -110,11 +202,38 @@ export class AccountingOrchestratorService implements IAccountingOrchestrator  {
     throw new Error("Showcase: Método no implementado.");
   }
 
+    const creditAccount = await this.getOrCreateAccount(data.companyId, creditAccountCode);
+    let totalPurchaseAmount = 0;
+
     for (const item of data.items)  {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  }
+  })
+          )
+        );
+      }
+
+      // Débito 2: IVA Descontable (2408)
+      if (taxAmount > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+            )
+          );
+        }
+      }
+    }
+
+    // Crédito Único: Contrapartida (Banco/Caja/Proveedor) por la suma de todo
+    if (creditAccount && totalPurchaseAmount > 0)  {
+    // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
+    // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
+    throw new Error("Showcase: Método no implementado.");
+  })
+        )
+      );
     }
 
     return entries;
