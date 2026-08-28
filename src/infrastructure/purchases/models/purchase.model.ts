@@ -60,5 +60,11 @@ export class PurchaseModel extends Entity {
   })
   createdAt?: Date;
 
+  @property({
+    type: 'string',
+    postgresql: {columnName: 'payment_method'},
+  })
+  paymentMethod?: string;
+
   constructor(data?: Partial<PurchaseModel>)  { super(); /* Inyectado por constructor */ }
 }

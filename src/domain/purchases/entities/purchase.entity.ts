@@ -7,6 +7,7 @@ export class Purchase extends DomainEntity {
   taxTotal: number;
   retentionTotal: number;
   total: number;
+  paymentMethod?: string;
   createdAt: Date;
 
   constructor(data?: Partial<Purchase>) {
@@ -15,6 +16,7 @@ export class Purchase extends DomainEntity {
     this.taxTotal = data?.taxTotal ?? 0;
     this.retentionTotal = data?.retentionTotal ?? 0;
     this.total = data?.total ?? 0;
+    this.paymentMethod = data?.paymentMethod ?? 'CASH';
     if (!this.createdAt) this.createdAt = new Date();
   }
 }

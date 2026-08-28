@@ -107,6 +107,7 @@ export class CreatePurchaseUseCase {
         taxTotal,
         retentionTotal: 0,
         total,
+        paymentMethod: dto.paymentMethod,
         createdAt: new Date(),
       }),
       options,
