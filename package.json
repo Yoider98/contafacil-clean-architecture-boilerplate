@@ -66,6 +66,7 @@
     "loopback-connector-postgresql": "7.1.2",
     "node-cron": "^4.6.0",
     "pdfmake": "^0.3.11",
+    "pg": "^8.23.0",
     "postgres": "^3.4.8",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2",

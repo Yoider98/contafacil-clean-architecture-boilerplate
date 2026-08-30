@@ -190,6 +190,7 @@ export class UsersController {
               password: { type: 'string' },
               role: { type: 'string', enum: ['OWNER', 'ADMIN', 'SELLER'] },
               permissions: { type: 'array', items: { type: 'string' } },
+              isActive: { type: 'boolean' },
             },
           },
         },
@@ -201,6 +202,7 @@ export class UsersController {
       password?: string;
       role?: string;
       permissions?: string[];
+      isActive?: boolean;
     },
   ): Promise<ApiResponse<User>> {
     try {
@@ -208,6 +210,9 @@ export class UsersController {
       if (body.name) user.name = body.name;
       if (body.email) user.email = body.email;
       if (body.password) user.password = body.password; // En la vida real, debe ser encriptada en un UseCase
+      if (body.isActive !== undefined) {
+        user.isActive = body.isActive;
+      }
 
       if (body.role) {
         user.role = body.role as UserRole;
@@ -233,6 +238,40 @@ export class UsersController {
       user.updatedAt = new Date();
       await this.userRepository.update(user);
       return ApiResponse.success(user, 'Usuario actualizado exitosamente');
+    } catch (err: unknown) {
+      this.responseObj.status(422);
+      return ApiResponse.error(
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
+  // POST /users/{id}/delete — Eliminar usuario (borrado lógico)
+  @post('/users/{id}/delete')
+  @response(200, {
+    description: 'Usuario eliminado exitosamente',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+          },
+        },
+      },
+    },
+  })
+  async deleteById(
+    @param.path.string('id') id: string,
+  ): Promise<ApiResponse<void>> {
+    try {
+      const user = await this.userRepository.findById(id);
+      user.isActive = false;
+      user.deletedAt = new Date();
+      user.updatedAt = new Date();
+      await this.userRepository.update(user);
+      return ApiResponse.success(undefined, 'Usuario eliminado exitosamente');
     } catch (err: unknown) {
       this.responseObj.status(422);
       return ApiResponse.error(

@@ -74,5 +74,12 @@ export class UserModel extends Entity {
   })
   deletedAt?: Date;
 
+  @property({
+    type: 'boolean',
+    default: true,
+    postgresql: {columnName: 'is_active'},
+  })
+  isActive?: boolean;
+
   constructor(data?: Partial<UserModel>)  { super(); /* Inyectado por constructor */ }
 }

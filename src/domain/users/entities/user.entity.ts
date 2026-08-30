@@ -10,9 +10,11 @@ export class User extends DomainEntity {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
+  isActive: boolean;
 
   constructor(data?: Partial<User>) {
     super(data);
     this.permissions = data?.permissions || [];
+    this.isActive = data?.isActive ?? true;
   }
 }
