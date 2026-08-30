@@ -17,13 +17,6 @@ export class UserModel extends Entity {
   @property({
     type: 'string',
     required: false,
-    postgresql: {columnName: 'company_id'},
-  })
-  companyId?: string;
-
-  @property({
-    type: 'string',
-    required: false,
   })
   name: string;
 
@@ -38,21 +31,6 @@ export class UserModel extends Entity {
     required: false,
   })
   password: string;
-
-  @property({
-    type: 'string',
-    required: false,
-    jsonSchema: {enum: ['OWNER', 'ADMIN', 'SELLER']},
-  })
-  role?: string;
-
-  @property({
-    type: 'array',
-    itemType: 'string',
-    required: false,
-    postgresql: {columnName: 'permissions', dataType: 'varchar[]'},
-  })
-  permissions?: string[];
 
   @property({
     type: 'date',

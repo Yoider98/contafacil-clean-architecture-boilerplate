@@ -7,6 +7,7 @@ import {PostgresDataSource} from '../../database/datasources/postgres.datasource
 import {UserMapper} from '../mappers/user.mapper';
 import {UserModel} from '../models/user.model';
 import {UserCompanyModel} from '../models/user-company.model';
+import {v4 as uuidv4} from 'uuid';
 
 export class UserRepository implements IUserRepository {
   private lbRepository: DefaultCrudRepository<UserModel, string>;
@@ -21,13 +22,6 @@ export class UserRepository implements IUserRepository {
     // La lógica de negocio detallada de este caso de uso o implementación de infraestructura
     // es privada y comercial. Se muestra únicamente la arquitectura y firma del método.
     throw new Error("Showcase: Método no implementado.");
-  });
-    }
-    
-    const domainUser = UserMapper.toDomain(saved);
-    domainUser.companyId = user.companyId;
-    domainUser.role = user.role;
-    return domainUser;
   }
 
   async findById(id: string): Promise<User>  {
@@ -105,9 +99,11 @@ export class UserRepository implements IUserRepository {
     throw new Error("Showcase: Método no implementado.");
   } else {
         await this.userCompanyLbRepo.create({
+          id: uuidv4(),
           userId: user.id,
           companyId: user.companyId,
           role: user.role,
+          permissions: user.permissions || [],
         });
       }
     }

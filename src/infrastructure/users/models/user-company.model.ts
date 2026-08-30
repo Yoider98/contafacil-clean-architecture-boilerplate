@@ -36,6 +36,14 @@ export class UserCompanyModel extends Entity {
   role: string;
 
   @property({
+    type: 'array',
+    itemType: 'string',
+    required: false,
+    postgresql: {columnName: 'permissions', dataType: 'varchar[]'},
+  })
+  permissions?: string[];
+
+  @property({
     type: 'date',
     default: () => new Date(),
     postgresql: {columnName: 'created_at'},

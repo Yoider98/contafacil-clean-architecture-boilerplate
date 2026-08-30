@@ -15,7 +15,7 @@ export interface CreateUserDto {
 }
 
 export interface IUserCompanyRepository {
-  create(data: {id: string; userId: string; companyId: string; role: string}): Promise<any>;
+  create(data: {id: string; userId: string; companyId: string; role: string; permissions?: string[]}): Promise<any>;
 }
 
 export class CreateUserUseCase  {

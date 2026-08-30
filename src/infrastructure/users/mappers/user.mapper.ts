@@ -1,7 +1,6 @@
-import {v4 as uuidv4} from 'uuid';
-import {User} from '../../../domain/users/entities/user.entity';
-import {UserRole} from '../../../domain/users/enums/user-role.enum';
-import {UserModel} from '../models/user.model';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../../../domain/users/entities/user.entity';
+import { UserModel } from '../models/user.model';
 
 export class UserMapper {
   static toDomain(model: UserModel): User  {
